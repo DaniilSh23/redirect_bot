@@ -33,10 +33,18 @@ async def throttling_middleware(_, __, update):
             return False
 
 
-async def func_filter_rating_without_comment(_, __, query):
-    """Фильтр для обработки нажатия на кнопку БЕЗ КОММЕНТАРИЕВ. Это когда клиент не хочет комментировать свою оценку"""
-    return query.data == 'no_rating_comments'
+async def func_cancel_and_clear_state(_, __, query):
+    """
+    Функция фильтрации для нажатия кнопки 'Отменить.'.
+    Это фильтр для хэндлера cancel_and_clear_state_handler.
+    """
+    return query.data == 'cancel_and_clear_state'
+
+# async def func_filter_rating_without_comment(_, __, query):
+#     """Фильтр для обработки нажатия на кнопку БЕЗ КОММЕНТАРИЕВ. Это когда клиент не хочет комментировать свою оценку"""
+#     return query.data == 'no_rating_comments'
 
 
-filter_rating_without_comment = filters.create(func_filter_rating_without_comment)
+# filter_rating_without_comment = filters.create(func_filter_rating_without_comment)
 filter_throttling_middleware = filters.create(throttling_middleware)
+filter_for_cancel_and_clear_state = filters.create(func_cancel_and_clear_state)
