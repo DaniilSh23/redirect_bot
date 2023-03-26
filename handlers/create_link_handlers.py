@@ -3,15 +3,18 @@ import math
 import random
 from urllib.parse import urlparse
 
+from loguru import logger
 from pyrogram import Client, filters
 from pyrogram.types import Message, CallbackQuery
 
+from bot_objects.links_obj import RedirectLinks
 from filters.create_link_filters import filter_for_create_link_btn_handler, filter_for_get_doc_with_links_handler, \
     filter_for_waiting_file_processing_handler, filter_minus_redirect_handler, filter_plus_redirect_handler, \
-    filter_link_shortening_handler
-from keyboards.bot_keyboards import CANCEL_AND_CLEAR_STATE_KBRD, choose_numb_of_redirect_kbrd
+    filter_link_shortening_handler, filter_processing_links_handler
+from keyboards.bot_keyboards import CANCEL_AND_CLEAR_STATE_KBRD, choose_numb_of_redirect_kbrd, CHOOSE_SHORT_LINK_KBRD, \
+    BACK_TO_HEAD_PAGE_KBRD
 from secondary_functions.req_to_bot_api import update_or_create_link, get_settings, get_user_data
-from settings.config import STATES_STORAGE_DCT, REDIRECT_NUMBERS_DCT
+from settings.config import STATES_STORAGE_DCT, LINKS_OBJ_DCT
 
 
 @Client.on_callback_query(filter_for_create_link_btn_handler)
@@ -60,6 +63,7 @@ async def get_doc_with_links_handler(client, update: Message):
     with open(file=tlg_file, mode='r', encoding='utf-8') as links_file:
         all_lines_count = 0
         valid_links_count = 0
+        links = ''
         for i_line in links_file:
             all_lines_count += 1
             i_line = i_line.replace(' ', '')
@@ -76,27 +80,42 @@ async def get_doc_with_links_handler(client, update: Message):
                     if i_elem == '.' and parsed_lnk.netloc[i_indx + 1] == '.':
                         break
             if is_link:
-                # Записываем ссылку в БД через запрос API
-                write_link_rslt = await update_or_create_link(data={
-                    'tlg_id': update.from_user.id,
-                    'link': i_line
-                })
-                if write_link_rslt:
-                    valid_links_count += 1
-            # Записываем рядом со стэйтом юзера, чтобы давать отчёт, если ему там не сидится спокойно
-            STATES_STORAGE_DCT[update.from_user.id] = ['waiting_file_processing', all_lines_count, valid_links_count]
+                if len(links) == 0:
+                    links = i_line
+                else:
+                    links = ' '.join([links, i_line])
+                valid_links_count += 1
 
-    # Даём ответ по окончании обработки файла
+                # # Записываем ссылку в БД через запрос API
+                # write_link_rslt = await update_or_create_link(data={
+                #     'tlg_id': update.from_user.id,
+                #     'link': i_line
+                # })
+
+    STATES_STORAGE_DCT.pop(update.from_user.id)     # Очищаем стэйт ожидания обработки файла
+
     tariff = await get_settings(key='tariff')  # Получаем цену тарифа в БД
     user_data = await get_user_data(tlg_id=update.from_user.id)  # Получаем данные об юзере (нужен баланс)
-    REDIRECT_NUMBERS_DCT[update.from_user.id] = [1, user_data.get("balance"), tariff[0].get("value")]
+    # Рассчитываем итоговую стоимость 1_редирект * число_ссылок * тариф
+    total_price = 1 * len(links.split(' ')) * int(tariff[0].get("value"))
+    # Создаём инстанс класса с данными о редиректе для ссылок
+    links_obj = RedirectLinks(
+        tlg_id=update.from_user.id,
+        links=links,
+        tariff=tariff[0].get("value"),
+        balance=user_data.get("balance"),
+        redirect_numb=1,
+        total_price=total_price,
+    )
+    LINKS_OBJ_DCT[update.from_user.id] = links_obj  # Сохраняем ссылку на объект класса в словаре
+
+    # Даём ответ по окончании обработки файла
     await update.reply_text(
         text=f'✅<b>Обработка файла завершена.</b>\n\n'
-             f"📖<b>Прочитано: {STATES_STORAGE_DCT[update.from_user.id][1]} строк файла</b>\n"
-             f"💾<b>Записано: {STATES_STORAGE_DCT[update.from_user.id][2]} ссылок</b>\n\n"
-             f'💲Цена редиректа: {tariff[0].get("value")} руб.\n'
-             f'💰Баланс: {user_data.get("balance")} руб.\n'
-             f'🧾Общая стоимость: {1 * float(tariff[0].get("value"))} руб.\n\n'
+             f"💾<b>Записано: {len(links.split(' '))} ссылок</b>\n\n"
+             f'💲Цена редиректа для 1 ссылки: <b>{links_obj.tariff} руб.</b>\n'
+             f'💰Баланс: <b>{links_obj.balance} руб.</b>\n'
+             f'🧾Общая стоимость: <b>{links_obj.total_price} руб.</b>\n\n'
              f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?',
         reply_markup=await choose_numb_of_redirect_kbrd()
     )
@@ -107,34 +126,38 @@ async def minus_redirect_handler(client, update: CallbackQuery):
     """
     Хэндлер для кнопок 'минус редирект(ы)'
     """
-    REDIRECT_NUMBERS_DCT[update.from_user.id][0] -= float(update.data.split()[1])
+    links_obj = LINKS_OBJ_DCT[update.from_user.id]  # Достаём из словаря объект класса
+    # Уменьшяем кол-во редиректов
+    links_obj.redirect_numb -= float(update.data.split()[1])
 
-    if REDIRECT_NUMBERS_DCT[update.from_user.id][0] < 1:  # Если выбрано менее 1 редиректа
-        REDIRECT_NUMBERS_DCT[update.from_user.id][0] = 1
+    if links_obj.redirect_numb < 1:  # Если выбрано менее 1 редиректа
+        links_obj.redirect_numb = 1
+        # Общая стоимость (число_редиректов * число_ссылок * тариф)
+        links_obj.total_price = links_obj.redirect_numb * len(links_obj.links.split(' ')) * links_obj.tariff
         text_for_message = f'❗️<b>Редиректов не может быть меньше 1</b>\n' \
-                           f'☑️<b>Выбрано {REDIRECT_NUMBERS_DCT[update.from_user.id][0]} ' \
+                           f'☑️<b>Выбрано {int(links_obj.redirect_numb)} ' \
                            f'редиректов для каждой ссылки</b>\n\n' \
-                           f"📖<b>Прочитано: {STATES_STORAGE_DCT[update.from_user.id][1]} строк файла</b>\n" \
-                           f"💾<b>Записано: {STATES_STORAGE_DCT[update.from_user.id][2]} ссылок</b>\n\n" \
-                           f'💲Цена редиректа: {REDIRECT_NUMBERS_DCT[update.from_user.id][2]} руб.\n' \
-                           f'💰Баланс: {REDIRECT_NUMBERS_DCT[update.from_user.id][1]} руб.\n' \
-                           f'🧾Общая стоимость: {REDIRECT_NUMBERS_DCT[update.from_user.id][0] * float(REDIRECT_NUMBERS_DCT[update.from_user.id][2])} руб.\n\n' \
+                           f"💾Записано: <b>{len(links_obj.links.split(' '))}</b> ссылок\n\n" \
+                           f'💲Цена редиректа для 1 ссылки: <b>{links_obj.tariff} руб.</b>\n' \
+                           f'💰Баланс: <b>{links_obj.balance} руб.</b>\n' \
+                           f'🧾Общая стоимость: <b>{links_obj.total_price} руб.</b>\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
-            redirect_numb=str(int(REDIRECT_NUMBERS_DCT[update.from_user.id][0])),
+            redirect_numb=str(links_obj.redirect_numb),
             replenish_balance=False
         )
     else:
-        text_for_message = f'☑️<b>Выбрано {REDIRECT_NUMBERS_DCT[update.from_user.id][0]} ' \
+        # Общая стоимость (число_редиректов * число_ссылок * тариф)
+        links_obj.total_price = links_obj.redirect_numb * len(links_obj.links.split(' ')) * links_obj.tariff
+        text_for_message = f'☑️<b>Выбрано {int(links_obj.redirect_numb)} ' \
                            f'редиректов для каждой ссылки</b>\n\n' \
-                           f"📖<b>Прочитано: {STATES_STORAGE_DCT[update.from_user.id][1]} строк файла</b>\n" \
-                           f"💾<b>Записано: {STATES_STORAGE_DCT[update.from_user.id][2]} ссылок</b>\n\n" \
-                           f'💲Цена редиректа: {REDIRECT_NUMBERS_DCT[update.from_user.id][2]} руб.\n' \
-                           f'💰Баланс: {REDIRECT_NUMBERS_DCT[update.from_user.id][1]} руб.\n' \
-                           f'🧾Общая стоимость: {REDIRECT_NUMBERS_DCT[update.from_user.id][0] * float(REDIRECT_NUMBERS_DCT[update.from_user.id][2])} руб.\n\n' \
+                           f"💾<b>Записано: {len(links_obj.links.split(' '))} ссылок</b>\n\n" \
+                           f'💲Цена редиректа для 1 ссылки: {links_obj.tariff} руб.\n' \
+                           f'💰Баланс: {links_obj.balance} руб.\n' \
+                           f'🧾Общая стоимость: {links_obj.total_price} руб.\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
-            redirect_numb=str(int(REDIRECT_NUMBERS_DCT[update.from_user.id][0])),
+            redirect_numb=str(int(links_obj.redirect_numb)),
             replenish_balance=False
         )
     await update.edit_message_text(
@@ -148,41 +171,46 @@ async def plus_redirect_handler(client, update: CallbackQuery):
     """
     Хэндлер для кнопок 'плюс редирект(ы)'.
     """
-    REDIRECT_NUMBERS_DCT[update.from_user.id][0] += float(update.data.split()[1])
-    total_price = REDIRECT_NUMBERS_DCT[update.from_user.id][0] * float(REDIRECT_NUMBERS_DCT[update.from_user.id][2])
+    links_obj = LINKS_OBJ_DCT[update.from_user.id]  # Достаём из словаря объект класса
+    # Увеличиваем кол-во редиректов
+    links_obj.redirect_numb += float(update.data.split()[1])
+    # Общая стоимость (число_редиректов * число_ссылок * тариф)
+    links_obj.total_price = links_obj.redirect_numb * len(links_obj.links.split(' ')) * links_obj.tariff
 
-    if total_price > float(REDIRECT_NUMBERS_DCT[update.from_user.id][1]):  # Если общая стоимость больше баланса
-        # Небольшой расчёт
-        difference = total_price - float(REDIRECT_NUMBERS_DCT[update.from_user.id][1])
-        numb_of_redirects = math.ceil(difference / float(REDIRECT_NUMBERS_DCT[update.from_user.id][2]))
+    if float(links_obj.total_price) > float(links_obj.balance):  # Если общая стоимость больше баланса
+        # Разница итоговой цены и баланса
+        price_difference = links_obj.total_price - links_obj.balance
+        # число_редиректов = разница цены / (число_сылок * тариф)
+        numb_of_redirects = math.ceil(price_difference / (len(links_obj.links.split(' ')) * links_obj.tariff))
 
-        # Отнимаем кол-во редиректов, чтобы было не больше текущего баланса, пересчитываем стоимость и даём ответ
-        REDIRECT_NUMBERS_DCT[update.from_user.id][0] -= numb_of_redirects
-        total_price = REDIRECT_NUMBERS_DCT[update.from_user.id][0] * float(REDIRECT_NUMBERS_DCT[update.from_user.id][2])
-        text_for_message = f'❗️<b>Недостаточно средств, пожалуйста, пополните баланс на {difference} руб.</b>\n' \
-                           f'☑️<b>Выбрано {REDIRECT_NUMBERS_DCT[update.from_user.id][0]} ' \
+        # Отнимаем кол-во редиректов, чтобы было не больше текущего баланса
+        links_obj.redirect_numb -= numb_of_redirects
+        # Общая стоимость (число_редиректов * число_ссылок * тариф)
+        links_obj.total_price = links_obj.redirect_numb * len(links_obj.links.split(' ')) * links_obj.tariff
+        text_for_message = f'❗️<b>Недостаточно средств, пополните баланс на {price_difference} руб.</b>\n\n' \
+                           f'☑️<b>Выбрано {int(links_obj.redirect_numb)} ' \
                            f'редиректов для каждой ссылки</b>\n\n' \
-                           f"📖<b>Прочитано: {STATES_STORAGE_DCT[update.from_user.id][1]} строк файла</b>\n" \
-                           f"💾<b>Записано: {STATES_STORAGE_DCT[update.from_user.id][2]} ссылок</b>\n\n" \
-                           f'💲Цена редиректа: {REDIRECT_NUMBERS_DCT[update.from_user.id][2]} руб.\n' \
-                           f'💰Баланс: {REDIRECT_NUMBERS_DCT[update.from_user.id][1]} руб.\n' \
-                           f'🧾Общая стоимость: {total_price} руб.\n\n' \
+                           f"💾Записано: <b>{len(links_obj.links.split(' '))} ссылок</b>\n\n" \
+                           f'💲Цена редиректа для 1 ссылки: <b>{links_obj.tariff} руб.</b>\n' \
+                           f'💰Баланс: <b>{links_obj.balance} руб.</b>\n' \
+                           f'🧾Общая стоимость: <b>{links_obj.total_price} руб.</b>\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
-            redirect_numb=str(int(REDIRECT_NUMBERS_DCT[update.from_user.id][0])),
+            redirect_numb=str(int(links_obj.redirect_numb)),
             replenish_balance=True
         )
     else:
-        text_for_message = f'☑️<b>Выбрано {REDIRECT_NUMBERS_DCT[update.from_user.id][0]} ' \
+        # Общая стоимость (число_редиректов * число_ссылок * тариф)
+        links_obj.total_price = links_obj.redirect_numb * len(links_obj.links.split(' ')) * links_obj.tariff
+        text_for_message = f'☑️<b>Выбрано {int(links_obj.redirect_numb)} ' \
                            f'редиректов для каждой ссылки</b>\n\n' \
-                           f"📖<b>Прочитано: {STATES_STORAGE_DCT[update.from_user.id][1]} строк файла</b>\n" \
-                           f"💾<b>Записано: {STATES_STORAGE_DCT[update.from_user.id][2]} ссылок</b>\n\n" \
-                           f'💲Цена редиректа: {REDIRECT_NUMBERS_DCT[update.from_user.id][2]} руб.\n' \
-                           f'💰Баланс: {REDIRECT_NUMBERS_DCT[update.from_user.id][1]} руб.\n' \
-                           f'🧾Общая стоимость: {total_price} руб.\n\n' \
+                           f"💾<b>Записано: {len(links_obj.links.split(' '))} ссылок</b>\n\n" \
+                           f'💲Цена редиректа для 1 ссылки: {links_obj.tariff} руб.\n' \
+                           f'💰Баланс: {links_obj.balance} руб.\n' \
+                           f'🧾Общая стоимость: {links_obj.total_price} руб.\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
-            redirect_numb=str(int(REDIRECT_NUMBERS_DCT[update.from_user.id][0])),
+            redirect_numb=str(int(links_obj.redirect_numb)),
             replenish_balance=False
         )
     await update.edit_message_text(
@@ -195,9 +223,61 @@ async def plus_redirect_handler(client, update: CallbackQuery):
 async def choosing_link_shortening_service_handler(client, update: CallbackQuery):
     """
     Хэндлер для выбора сервиса по сокращению ссылок.
-    Попадаем сюда после нажатия кнопки с callback_data='to_link_shortening'
+    Попадаем сюда после нажатия кнопки с callback_data='to_link_shortening'.
+    Отдаём клавиатуру со списком сервисов для сокращения ссылок.
     """
-    await update.answer(f'Перешли к выбору сервиса по сокращению ссылок.')
+    await update.answer(f'Выбор сервиса для сокращения ссылок')
+    await update.edit_message_text(
+        text=f'🔗Пожалуйста, выберите <b>сервис для сокращения ссылок</b>.',
+        reply_markup=CHOOSE_SHORT_LINK_KBRD
+    )
+
+
+@Client.on_callback_query(filter_processing_links_handler)
+async def processing_links_for_redirect_handler(client, update: CallbackQuery):
+    """
+    Хэндлер, в котором мы непосредственно осуществляем процесс обработки каждой ссылки для обёртки их в редирект.
+    Как итог работы отправляем файл, в котором будут указаны ссылки с их редиректом и ID компании(для сбора статистики)
+    """
+    links_obj = LINKS_OBJ_DCT[update.from_user.id]  # Достаём из словаря объект класса
+    links_obj.short_link_service = update.data.split()[0]
+    await update.edit_message_text(
+        text=f'🆗Окей.\n'
+             f'🎁Начинаю оборачивать Ваши ссылки в редирект.\n'
+             f'🧘‍♀️Ожидайте, я пришлю Вам файл с результатами📄, когда всё будет готово.',
+        reply_markup=BACK_TO_HEAD_PAGE_KBRD
+    )
+    err_flag = False
+    # Создаём в БД набор для ссылок
+    result = await links_obj.create_link_set()
+    if result:
+        # Создаём в БД записи для ссылок
+        result = await links_obj.create_links()
+        if not result:  # Неудачный запрос для создания ссылок
+            logger.error(f'Неудачный запрос для создания в БД ссылок. TG_ID=={update.from_user.id}')
+            err_flag = True
+    else:   # Неудачный запрос для создания набора ссылок
+        logger.error(f'Неудачный запрос для создания в БД набора ссылок. TG_ID=={update.from_user.id}')
+        err_flag = True
+
+    # Кидаем запрос для старта обёртки ссылок(задачка Celery)
+    if not await links_obj.start_wrapping():
+        logger.error(f'Неудачный запрос старта задачи по обёртки ссылок. TG_ID=={update.from_user.id}')
+        err_flag = True
+
+    if err_flag:    # Отправляем уведомление о неисправности бота
+        await update.edit_message_text(
+            text=f'🔧<b>Техническая неисправность бота.</b>\n'
+                 f'Пожалуйста, сообщите нам через раздел поддержки, чтобы мы могли оперативно устранить проблему.',
+            reply_markup=BACK_TO_HEAD_PAGE_KBRD
+        )
+    # TODO:
+    #  2) Записываем данные о наборе ссылок в БД и потом записываем ссылки в БД
+    #  3) Кидаем АПИ запрос о том, что надо начинать оборачивать ссылки в редирект.
+    #  ID набора ссылок, к которому они привязаны
+    #  4) Создаём отложенную задачку Celery в Django проекте, которая уже сама работает с кейтаро и обёрткой ссылок
+    #  5) По итогу формируем файл в той же задаче Celery и отправляем его от лица бота юзеру.
+    #  В файле записываем ссылку, её ID в keitaro, список ссылок с редиректом на неё и так далее по списку ссылок...
 
 
 @Client.on_message(filter_for_waiting_file_processing_handler)
@@ -210,14 +290,21 @@ async def waiting_file_processing(client, update: Message):
     answers_lst = [
         '⌛️Пожалуйста, ожидайте. Я занимаюсь обработкой Вашего файла',
         '⌛️К сожалению, Вам придётся ещё немного подождать, я занимаюсь обработкой Вашего файла.',
+        '🍹Пока я обрабатываю файл, Вы можете потратить время с пользой для себя.',
+        '🥃Почему бы не сделать небольшую паузу, пока я занят обработкой файла?',
+        '🧉Вы можете расслабиться, пока я занят обработкой Вашего файла. '
+        'Согласитесь, намного лучше когда Вам не приходится делать это самостоятельно.',
+        '🧘‍♀️<i>Кто понял жизнь тот больше не спешит,\nСмакует каждый миг и наблюдает,'
+        '\nКак спит ребёнок, молится старик,\nКак дождь идёт и как снежинки тают.\n\nОмар Хаям послал к хуям</i> ',
         # Нецензурные ответы
         'Будешь ебать мне голову, вообще нихуя делать не стану.',
         '<b>Пошёл нахуй</b>',
-        'Ручонки свои шаловливые убери куда-нибудь в другое место. '
+        'Ручонки свои шаловливые убери куда-нибудь в другое место. ',
         'От того, что ты дрочить меня будешь процесс только замедлится. '
         'Потому, что я хоть и программа, но один хуй трачу время на то, чтобы ответить вот таким уебанам, '
         'которых бывает достаточно в каждый момент времени.',
-        '☝️<b>Время лечит...</b>\nДаже таких долбоебов как ты. Поэтому сиди и жди.'
+        '☝️<b>Время лечит...</b>\nДаже таких долбоебов как ты. Поэтому сиди и жди.',
+        'Ебись сам с этой хуйнёй, раз такой активный.'
     ]
     await update.reply_text(
         text=f"{random.choice(answers_lst)}\n\n"

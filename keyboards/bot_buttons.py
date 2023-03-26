@@ -37,6 +37,10 @@ BUTTONS_DCT = {
         text=f'❌Отменить',
         callback_data='cancel_and_clear_state'
     ),
+    'BACK_TO_HEAD_PAGE': InlineKeyboardButton(
+        text=f'🔙На главную',
+        callback_data='back_to_head_page'
+    ),
 
     # Выбор кол-ва редиректов
     'MINUS_REDIRECT': InlineKeyboardButton(
@@ -76,4 +80,29 @@ BUTTONS_DCT = {
         callback_data='to_link_shortening'
     ),
 
+    # Выбор сервисов для сокращения ссылок
+    'cutt.ly': InlineKeyboardButton(
+        text=f'🔹cutt.ly',
+        callback_data='short_link cutt.ly'
+    ),
+    'cutt.us': InlineKeyboardButton(
+        text=f'🔹cutt.us',
+        callback_data='short_link cutt.us'
+    ),
+    'clck.ru': InlineKeyboardButton(
+        text=f'🔹clck.ru',
+        callback_data='short_link clck.ru'
+    ),
+    'kortlink.dk': InlineKeyboardButton(
+        text=f'🔹kortlink.dk',
+        callback_data='short_link kortlink.dk'
+    ),
+    'gg.gg': InlineKeyboardButton(
+        text=f'🔹gg.gg',
+        callback_data='short_link gg.gg'
+    ),
+    't9y.me': InlineKeyboardButton(
+        text=f'🔹t9y.me',
+        callback_data='short_link t9y.me'
+    ),
 }

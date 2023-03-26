@@ -29,6 +29,25 @@ CANCEL_AND_CLEAR_STATE_KBRD = InlineKeyboardMarkup([
     ],
 ])
 
+CHOOSE_SHORT_LINK_KBRD = InlineKeyboardMarkup([
+    [
+        BUTTONS_DCT['cutt.ly'],
+        BUTTONS_DCT['cutt.us'],
+        BUTTONS_DCT['clck.ru'],
+    ],
+    [
+        BUTTONS_DCT['kortlink.dk'],
+        BUTTONS_DCT['gg.gg'],
+        BUTTONS_DCT['t9y.me'],
+    ],
+])
+
+BACK_TO_HEAD_PAGE_KBRD = InlineKeyboardMarkup([
+    [
+        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
+    ],
+])
+
 
 async def choose_numb_of_redirect_kbrd(redirect_numb='1', replenish_balance=False):
     """

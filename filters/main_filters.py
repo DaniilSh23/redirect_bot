@@ -40,11 +40,15 @@ async def func_cancel_and_clear_state(_, __, query):
     """
     return query.data == 'cancel_and_clear_state'
 
-# async def func_filter_rating_without_comment(_, __, query):
-#     """Фильтр для обработки нажатия на кнопку БЕЗ КОММЕНТАРИЕВ. Это когда клиент не хочет комментировать свою оценку"""
-#     return query.data == 'no_rating_comments'
+
+async def func_back_to_head_page(_, __, query):
+    """
+    Функция фильрации для хэндлера back_to_head_page_handler.
+    """
+    return query.data == 'back_to_head_page'
 
 
 # filter_rating_without_comment = filters.create(func_filter_rating_without_comment)
 filter_throttling_middleware = filters.create(throttling_middleware)
 filter_for_cancel_and_clear_state = filters.create(func_cancel_and_clear_state)
+filter_back_to_head_page = filters.create(func_back_to_head_page)

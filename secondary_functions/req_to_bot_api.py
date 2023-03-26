@@ -1,6 +1,8 @@
+import json
+
 import aiohttp as aiohttp
 from loguru import logger
-from settings.config import USER_DATA_URL, GET_BOT_ADMINS_URL, LINKS_URL
+from settings.config import USER_DATA_URL, GET_BOT_ADMINS_URL, LINKS_URL, LINK_SET_URL, START_WRAPPING_URL
 
 
 async def post_user_data(user_data):
@@ -52,10 +54,40 @@ async def update_or_create_link(data):
     POST запрос для создания или обновления ссылки.
     """
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=LINKS_URL, data=data) as response:
+        async with session.post(url=LINKS_URL, json=data) as response:
             if response.status == 200:
                 logger.success(f'Успешный запрос для создания/обновления ссылки.')
                 return True
             else:
                 logger.warning(f'Неудачный запрос для создания/обновления ссылки.')
+                return False
+
+
+async def post_for_create_link_set(data):
+    """
+    POST запрос для создания набора ссылок в БД.
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=LINK_SET_URL, json=data) as response:
+            if response.status == 200:
+                logger.success(f'Успешный запрос для создания набора ссылок.')
+                return await response.json()
+            else:
+                logger.warning(f'Неудачный запрос для создания набора ссылок!')
+                return False
+
+
+async def post_for_start_wrapping(data):
+    """
+    POST запрос для старта обёртки ссылок.
+    Параметры:
+        link_set_id - ID набора ссылок.
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=START_WRAPPING_URL, json=data) as response:
+            if response.status == 200:
+                logger.success(f'Успешный запрос для старта обёртки ссылок.')
+                return await response.json()
+            else:
+                logger.warning(f'Неудачный запрос для старта обёртки ссылок!')
                 return False

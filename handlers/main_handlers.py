@@ -6,7 +6,8 @@ from pyrogram import Client, filters
 from pyrogram.types import CallbackQuery, Message
 
 
-from filters.main_filters import filter_throttling_middleware, filter_for_cancel_and_clear_state
+from filters.main_filters import filter_throttling_middleware, filter_for_cancel_and_clear_state, \
+    filter_back_to_head_page
 from keyboards.bot_keyboards import ADMIN_KBRD, HEAD_PAGE_KBRD
 from secondary_functions.req_to_bot_api import post_user_data, get_settings
 from settings.config import BLACK_LIST, STATES_STORAGE_DCT
@@ -106,6 +107,25 @@ async def cancel_and_clear_state_handler(client, update: CallbackQuery):
 
     await update.answer(
         text=f'Нажата кнопка ❌Отменить.\nВозврат к главному меню.',
+        show_alert=True
+    )
+    await update.edit_message_text(
+        text='<b>Главное меню</b>',
+        reply_markup=HEAD_PAGE_KBRD
+    )
+
+
+@Client.on_callback_query(filter_back_to_head_page)
+async def back_to_head_page_handler(client, update: CallbackQuery):
+    """
+    Хэндлер для обработки нажатия кнопки На главную.
+    """
+    # Очищаем состояние, если оно было
+    if STATES_STORAGE_DCT.get(update.from_user.id):
+        STATES_STORAGE_DCT.pop(update.from_user.id)
+
+    await update.answer(
+        text=f'Возврат к главному меню.',
         show_alert=True
     )
     await update.edit_message_text(

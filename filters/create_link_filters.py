@@ -51,9 +51,17 @@ async def func_link_shortening(_, __, query):
     return query.data == 'to_link_shortening'
 
 
+async def func_processing_links(_, __, query):
+    """
+    Функция фильтрации для хэндлера processing_links_for_redirect_handler.
+    """
+    return query.data.split()[0] == 'short_link'
+
+
 filter_for_create_link_btn_handler = filters.create(func_create_link_btn)
 filter_for_get_doc_with_links_handler = filters.create(func_get_doc_with_links)
 filter_for_waiting_file_processing_handler = filters.create(func_waiting_file_processing)
 filter_minus_redirect_handler = filters.create(func_minus_redirect)
 filter_plus_redirect_handler = filters.create(func_plus_redirect)
 filter_link_shortening_handler = filters.create(func_link_shortening)
+filter_processing_links_handler = filters.create(func_processing_links)
