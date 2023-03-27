@@ -105,4 +105,9 @@ BUTTONS_DCT = {
         text=f'🔹t9y.me',
         callback_data='short_link t9y.me'
     ),
+    # Кнопка для раздела статистики
+    'CHECK_MORE': InlineKeyboardButton(
+        text='🔂Проверить ещё',
+        callback_data='get_statistic'
+    )
 }

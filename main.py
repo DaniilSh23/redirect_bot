@@ -13,6 +13,8 @@ if __name__ == '__main__':
             include=[   # Явно прописываем какие файлы с хэндлерами подключаем
                 "main_handlers",
                 "create_link_handlers",
+                "get_statistic_handlers",
+                "simple_handlers",
             ]
         )  # Путь пакета с обработчиками
 

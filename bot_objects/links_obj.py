@@ -43,6 +43,7 @@ class RedirectLinks:
             'link_set_id': self.link_set_id,
             'link': i_link,
             'redirect_numb': self.redirect_numb,
+            'short_link_service': self.short_link_service,
         } for i_link in self.links.split()])
         if response:
             return True
