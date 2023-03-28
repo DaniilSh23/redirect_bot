@@ -67,6 +67,33 @@ MY_BALANCE_PART_KBRD = InlineKeyboardMarkup([
 ])
 
 
+PAY_METHODS_KBRD = InlineKeyboardMarkup([
+    [
+        # BUTTONS_DCT['QIWI_PAY_METHD'],
+        BUTTONS_DCT['CRYSTAL_PAY_METHD'],
+    ],
+    [
+        BUTTONS_DCT['TO_CARD_PAY_METHD'],
+    ],
+    [
+        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
+    ],
+])
+
+
+WAITING_FOR_PAYMENT_KBRD = InlineKeyboardMarkup([
+    [
+        BUTTONS_DCT['CONFIRM_PAYMENT'],
+    ],
+    [
+        BUTTONS_DCT['CANCEL_PAYMENT'],
+    ],
+    [
+        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
+    ],
+])
+
+
 async def choose_numb_of_redirect_kbrd(redirect_numb='1', replenish_balance=False):
     """
     Клавиатурка для выбора кол-ва редиректов

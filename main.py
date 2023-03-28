@@ -15,6 +15,7 @@ if __name__ == '__main__':
                 "create_link_handlers",
                 "get_statistic_handlers",
                 "simple_handlers",
+                "pay_steps_handlers",
             ]
         )  # Путь пакета с обработчиками
 

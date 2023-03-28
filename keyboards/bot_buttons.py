@@ -105,9 +105,32 @@ BUTTONS_DCT = {
         text=f'🔹t9y.me',
         callback_data='short_link t9y.me'
     ),
+
     # Кнопка для раздела статистики
     'CHECK_MORE': InlineKeyboardButton(
         text='🔂Проверить ещё',
         callback_data='get_statistic'
-    )
+    ),
+
+    # Раздел платежей
+    'QIWI_PAY_METHD': InlineKeyboardButton(
+        text='🪙QIWI',
+        callback_data='pay_method qiwi',
+    ),
+    'CRYSTAL_PAY_METHD': InlineKeyboardButton(
+        text='🪙Crystal Pay',
+        callback_data='pay_method crystal',
+    ),
+    'TO_CARD_PAY_METHD': InlineKeyboardButton(
+        text='🪙Перевод на карту',
+        callback_data='pay_method to_card',
+    ),
+    'CONFIRM_PAYMENT': InlineKeyboardButton(
+        text='✅Подтвердить оплату',
+        callback_data='confirm_payment',
+    ),
+    'CANCEL_PAYMENT': InlineKeyboardButton(
+        text='❌Отменить оплату',
+        callback_data='cancel_payment',
+    ),
 }
