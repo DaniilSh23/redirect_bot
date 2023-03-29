@@ -123,7 +123,7 @@ BUTTONS_DCT = {
     ),
     'TO_CARD_PAY_METHD': InlineKeyboardButton(
         text='🪙Перевод на карту',
-        callback_data='pay_method to_card',
+        callback_data='pay_to_card',
     ),
     'CONFIRM_PAYMENT': InlineKeyboardButton(
         text='✅Подтвердить оплату',
@@ -132,5 +132,9 @@ BUTTONS_DCT = {
     'CANCEL_PAYMENT': InlineKeyboardButton(
         text='❌Отменить оплату',
         callback_data='cancel_payment',
+    ),
+    'I_PAYD_TO_CARD': InlineKeyboardButton(
+        text='✅Перевод выполнен',
+        callback_data='i_payd_to_card',
     ),
 }

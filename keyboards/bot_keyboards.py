@@ -94,6 +94,16 @@ WAITING_FOR_PAYMENT_KBRD = InlineKeyboardMarkup([
 ])
 
 
+PAY_TO_CARD_KBRD = InlineKeyboardMarkup([
+    [
+        BUTTONS_DCT['I_PAYD_TO_CARD'],
+    ],
+    [
+        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
+    ],
+])
+
+
 async def choose_numb_of_redirect_kbrd(redirect_numb='1', replenish_balance=False):
     """
     Клавиатурка для выбора кол-ва редиректов
@@ -141,6 +151,24 @@ async def form_webapp_kbrd(form_link, btn_text):
             InlineKeyboardButton(
                 text=btn_text,
                 web_app=WebAppInfo(url=form_link)
+            )
+        ],
+    ])
+
+
+async def card_payment_processing_kbrd(tlg_id):
+    """
+    Клавиатура для обработки платежей на карту.
+    """
+    return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton(
+                text='✅Подтвердить платёж',
+                callback_data=f'confirm_card_payment {tlg_id}',
+            ),
+            InlineKeyboardButton(
+                text='❌Отклонить платёж',
+                callback_data=f'decline_card_payment {tlg_id}',
             )
         ],
     ])

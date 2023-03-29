@@ -32,4 +32,4 @@ USERS_REQ_DCT = dict()  # учёт запросов юзеров {tlg_id: reques
 STATES_STORAGE_DCT = dict()     # Хранилище состояний
 LINKS_OBJ_DCT = dict()  # Словарь для хранения ссылок к объектам класса RedirectLinks
 PAYMENTS_OBJ_DCT = dict()   # Словарь для хранения ссылок к объектам класса UserPayments
-
+TEMP_STORAGE_DCT = dict()   # Временное хранилище, в котором может лежать что угодно, но ключ всегда TG ID

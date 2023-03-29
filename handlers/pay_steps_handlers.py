@@ -3,11 +3,13 @@ from pyrogram.types import CallbackQuery, Message
 
 from bot_objects.payments_objects import UserPayments
 from filters.payment_filters import filters_choose_pay_method, filter_ask_pay_amount, filter_write_pay_amount, \
-    confirm_payment_filter, cancel_payment_filter
+    confirm_payment_filter, cancel_payment_filter, pay_to_card_send_data_filter, ask_pay_to_card_confirmation_filter, \
+    pay_to_card_confirmation_filter, decline_card_payment_filter, ask_amount_for_confirm_card_payment_filter, \
+    confirm_card_payment_filter
 from keyboards.bot_keyboards import PAY_METHODS_KBRD, CANCEL_AND_CLEAR_STATE_KBRD, BACK_TO_HEAD_PAGE_KBRD, \
-    WAITING_FOR_PAYMENT_KBRD, ADMIN_KBRD
-from secondary_functions.req_to_bot_api import req_for_get_payment, get_settings
-from settings.config import PAYMENTS_OBJ_DCT, STATES_STORAGE_DCT
+    WAITING_FOR_PAYMENT_KBRD, ADMIN_KBRD, PAY_TO_CARD_KBRD, card_payment_processing_kbrd
+from secondary_functions.req_to_bot_api import req_for_get_payment, get_settings, post_for_change_balance
+from settings.config import PAYMENTS_OBJ_DCT, STATES_STORAGE_DCT, TEMP_STORAGE_DCT
 
 
 @Client.on_callback_query(filters_choose_pay_method)
@@ -15,11 +17,45 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
     """
     Хэндлер для выбора способа оплаты.
     """
-    await update.answer(f'Выберите способ оплаты')
-    await update.edit_message_text(
-        text=f'💳<b>Выберите способ оплаты</b>',
-        reply_markup=PAY_METHODS_KBRD
-    )
+    # Проверяем наличие в БД активного счёта
+    payment_from_db = await req_for_get_payment(tlg_id=update.from_user.id)
+    if not payment_from_db:  # Обработка на случай неудачного запроса
+        await update.edit_message_text(
+            text=f'🚧<b>Не удалось получить данные об активном платеже.</b>\n\n'
+                 f'Будем благодарны, если сообщите нам об этой проблеме. Так мы сможем быстрее всё починить',
+            reply_markup=BACK_TO_HEAD_PAGE_KBRD
+        )
+        return
+
+    # Если данные о платеже есть в БД
+    if payment_from_db.get('tlg_id'):
+        payment_obj = UserPayments(   # Создаём объект класса UserPayments
+            tlg_id=update.from_user.id,
+            pay_system_type=payment_from_db.get("pay_system_type"),
+            amount=payment_from_db.get("amount"),
+            bill_id=payment_from_db.get("bill_id"),
+            bill_url=payment_from_db.get("bill_url"),
+            bill_status=payment_from_db.get("bill_status"),
+            bill_expire_at=payment_from_db.get("bill_expire_at"),
+        )
+        PAYMENTS_OBJ_DCT[update.from_user.id] = payment_obj
+        # Даём ответ со ссылкой на оплату и кнопками
+        await update.edit_message_text(
+            text=f'🌐<b>Ваша ссылка для оплаты:</b> {payment_obj.bill_url}\n\n'
+                 f'После платежа необходимо нажать кнопку '
+                 f'"✅Подтвердить оплату" - <u><b>это будет основанием для зачисления средств</b></u>.',
+            reply_markup=WAITING_FOR_PAYMENT_KBRD
+        )
+
+    else:   # Если активного счёта нет, то ведём на 1-й шаг оплаты
+        await update.answer(f'Выберите способ оплаты')
+        await update.edit_message_text(
+            text=f'💳<b>Выберите способ оплаты</b>',
+            reply_markup=PAY_METHODS_KBRD
+        )
+
+
+'''ПЛАТЕЖИ QIWI и CRYSTAL PAY'''
 
 
 @Client.on_callback_query(filter_ask_pay_amount)
@@ -181,3 +217,133 @@ async def cancel_payment_handler(client, update: CallbackQuery):
     )
 
 
+'''ПЛАТЕЖИ ПЕРЕВОДОМ НА КАРТУ'''
+
+
+@Client.on_callback_query(pay_to_card_send_data_filter)
+async def pay_to_card_send_data_handler(client, update: CallbackQuery):
+    """
+    Платёж переводом на карту, отправляем данные для перевода
+    """
+    await update.edit_message_text(
+        text=f'Переведите сумму, необходимую для пополнения баланса на карту номер .....\n'
+             f'После перевода пришлите чек, на котором должна быть видна информация: отправитель, получатель, сумма.\n'
+             f'После обработки Вашего платежа, указанная Вами сумма поступит на баланс.',
+        reply_markup=PAY_TO_CARD_KBRD
+    )
+
+
+@Client.on_callback_query(ask_pay_to_card_confirmation_filter)
+async def ask_pay_to_card_confirmation_handler(client, update: CallbackQuery):
+    """
+    Хэндлер для запроса подтверждения платежа переводом на карту.
+    """
+    await update.edit_message_text(
+        text=f'Пожалуйста, отправьте мне чек в качестве подтверждения платежа. '
+             f'На чеке должно быть отчётливо видно отправителя, получателя и сумму.',
+        reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+    )
+    STATES_STORAGE_DCT[update.from_user.id] = 'pay_to_card_confirmation'
+
+
+@Client.on_message(pay_to_card_confirmation_filter)
+async def pay_to_card_confirmation_handler(client, update: Message):
+    """
+    Хэндлер для получения от юзера чека, в качестве подтверждения платежа.
+    """
+    # Просим повторить, если не обнаружено фотки в сообщении
+    if not update.photo:
+        await update.reply_text(
+            text=f'Не обнаружено фото в Вашем сообщении. '
+                 f'Пожалуйста, отправьте мне чек(скрин, фото) подтверждения оплаты',
+            reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+        )
+        return
+
+    # Ответ юзеру
+    await update.reply_text(
+        text=f'Ваши средства будут зачислены сразу, после обработки платежа.',
+        reply_markup=BACK_TO_HEAD_PAGE_KBRD
+    )
+    STATES_STORAGE_DCT.pop(update.from_user.id)     # Очищаем стэйт
+
+    # Получаем ID того, кто подтверждает платежи
+    who_approves_payments = await get_settings(key='who_approves_payments')
+    if not who_approves_payments:
+        pass    # TODO: сделать обработку неудачного запроса
+
+    who_approves_payments = who_approves_payments[0].get("value")
+    await update.copy(
+        chat_id=who_approves_payments,
+        caption=f'Подтверждение платежа от юзера: TG_ID: {update.from_user.id}|username: {update.from_user.username}',
+        reply_markup=await card_payment_processing_kbrd(tlg_id=update.from_user.id)
+    )
+
+
+@Client.on_callback_query(decline_card_payment_filter)
+async def decline_card_payment_handler(client, update: CallbackQuery):
+    """
+    Хэндлер для отклонения платежа по карте
+    """
+    # Информирование юзера об отклонении платежа
+    await client.send_message(
+        chat_id=update.data.split()[1],
+        text=f'❌Ваш платёж был отклонён'
+    )
+
+    # Уведомление тому, кто отклонил
+    await update.edit_message_text(
+        text=f'Юзер проинформирован об отклонении платежа❌'
+    )
+
+
+@Client.on_callback_query(ask_amount_for_confirm_card_payment_filter)
+async def ask_amount_for_confirm_card_payment_handler(client, update: CallbackQuery):
+    """
+    Хэндлер для запроса суммы платежа по карте.
+    """
+    await client.send_message(
+        chat_id=update.from_user.id,
+        text=f'Введите сумму, которую оплатил пользователь\n\n'
+             f'(<b>целое число</b>, если кто-то умудрился оплатить с копейками, то, как выдающейся личности,'
+             f' можно округлить его сумму в большую сторону до очередного рубля)',
+        reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+    )
+    STATES_STORAGE_DCT[update.from_user.id] = 'ask_card_replenish_amount'   # Устанавливаем стэйт для админа
+    # Записываем tlg_id плательщика во временное хранилище
+    TEMP_STORAGE_DCT[update.from_user.id] = {'payer_id': update.data.split()[1]}
+
+
+@Client.on_message(confirm_card_payment_filter)
+async def confirm_card_payment_handler(client, update: Message):
+    """
+    Хэндлер подтверждения платежа и зачисления средств на баланс.
+    """
+    # Проверка, если введено не целое число
+    if not update.text.isdigit():
+        await update.reply_text(
+            text=f'Пожалуйста, введите целое число(сумма, которую пользователь перевёл на карту).',
+            reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+        )
+        return
+
+    # Очищаем стэйт админа
+    STATES_STORAGE_DCT.pop(update.from_user.id)
+
+    # Получаем tlg_id плательщика
+    payer_id = TEMP_STORAGE_DCT.get(update.from_user.id).get('payer_id')
+    # Посылаем запрос на изменение баланса юзера
+    response = await post_for_change_balance(data={
+        "action": "+",
+        "value": update.text,
+        "tlg_id": payer_id,
+    })
+    if not response:    # Обработка неудачного запроса
+        await update.reply_text(
+            text=f'Не удалось выполнить запрос для изменения баланса юзера {payer_id} на +{update.text} руб.\n\n'
+                 f'Рекомендую сейчас пополнить баланс юзерая вручную в админке и далее решать проблему.',
+        )
+    else:
+        await update.reply_text(
+            text=f'+{update.text} руб. зачислено на баланс юзера {payer_id}',
+        )
