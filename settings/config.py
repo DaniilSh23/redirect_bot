@@ -24,7 +24,7 @@ PAYMENTS_URL = f'{BASE_HOST_URL}payments/'
 CHANGE_BALANCE_URL = f'{BASE_HOST_URL}change_balance/'
 
 # Настройки для throttling middleware
-SECNDS_BETWEEN_REQUEST = int(os.environ.get('SECNDS_BETWEEN_REQUEST', '0'))     # Секунды между запросами
+SECNDS_BETWEEN_REQUEST = float(os.environ.get('SECNDS_BETWEEN_REQUEST', '0'))     # Секунды между запросами
 BLACK_LIST = dict()     # юзеры, которые делают много запросов {tlg_id: datetime_when_block_expires}
 USERS_REQ_DCT = dict()  # учёт запросов юзеров {tlg_id: request_datetime}
 
