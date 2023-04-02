@@ -6,13 +6,14 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id):
     """
     POST запрос к KEITARO для получения статистике по ID компании.
     """
-    url = "http://185.198.167.20/admin/?bulk="
+    url = "http://45.9.40.104/admin/?bulk="
     payload = [
-        {
-            "method": "GET",
-            "object": "reports.parameterAliases",
-            "campaign_id": f"{company_id}"
-        },
+        # {
+        #     "method": "GET",
+        #     "object": "reports.parameterAliases",
+        #     "campaign_id": f"{company_id}"
+        # },
+        # Получаем данные по кликам на ссылку
         {
             "method": "POST",
             "postData": {
@@ -27,6 +28,7 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id):
             },
             "object": "reports.build"
         },
+        # Получаем  данные о компании (нужна оригинальная ссылка и ID компании
         {
             "method": "GET",
             "object": "campaigns.show",
@@ -34,21 +36,18 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id):
         }
     ]
     headers = {
-        "cookie": "keitaro=jaa79fju1sil2umql63d2m6653",
         "Accept": "application/json, text/plain, */*",
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/111.0",
         "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
         "Content-Type": "application/json;charset=utf-8",
-        "Cookie": "states=v1eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpbiI6IjhkMTk0NjRiMTY3ZTZkMjljZTQ5NGFhYWRj"
-                  "NGJmNWZkIiwicGFzc3dvcmQiOiIlMjQyeSUyNDEwJTI0bDZvQmFTaFN6TTl0Lm9ISDBjR1k1LkQybUh6dlR6Ljl5aGVPNSUyRk"
-                  "RtYWl6Mlp4LkxEbTNBeSIsInRpbWVzdGFtcCI6MTY3OTEzNDEzNH0.PCDnkcFsZWg7C5fuGDsswE6ohyr2s1DnYETg17SJp_U;"
-                  " streamsView=true; streamsSharesVisible=false; keitaro=c6mtduund16i8qdj8tt5ef52m1",
-        "Referer": "http://185.198.167.20/admin/",
+        "Cookie": "states=v1eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpbiI6IjhkMTk0NjRiMTY3ZTZkMjljZTQ5NGFhYWRjNGJm"
+                  "NWZkIiwicGFzc3dvcmQiOiIlMjQyeSUyNDEwJTI0RmlpVUNaV1FKdDh4SG96YWlBMVJRZUppaUFEZE9PNEs0biUyRmJ1TGw3aE"
+                  "xyS1Y4SiUyRkwuQlF1IiwidGltZXN0YW1wIjoxNjgwMjU5NjUyfQ.G-V2Fju3RSC0OrGUytXxPsMH16YsxdKFaA_v9aFr4Zc",
+        "Referer": "http://45.9.40.104/admin/?",
         "Connection": "keep-alive",
-        "Origin": "http://185.198.167.20",
-        "Content-Length": "473",
+        "Origin": "http://45.9.40.104",
         "Accept-Encoding": "gzip, deflate",
-        "Host": "185.198.167.20"
+        "Host": "45.9.40.104"
     }
     async with aiohttp.ClientSession() as session:
         async with session.post(url=url, headers=headers, json=payload) as response:

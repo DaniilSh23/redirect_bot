@@ -52,7 +52,7 @@ async def get_statistic_from_keitaro(client, update: Message):
             # Отлавливаем тот словарь, у которого в body лежит rows = [поток для ботов, осн. поток]
             if i_elem.get('body') and i_elem.get('body').get('rows'):
                 for j_elem in i_elem.get('body').get('rows'):
-                    if j_elem.get('stream') == 'Flow 2':    # Отлавливаем основной поток и забираем клики
+                    if j_elem.get('stream') == 'RedirectStream':    # Отлавливаем основной поток и забираем клики
                         all_clicks = j_elem.get('clicks')
                         unique_clicks = j_elem.get('stream_unique_clicks')
 
