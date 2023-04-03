@@ -1,6 +1,7 @@
 import math
 import random
 from urllib.parse import urlparse
+from decimal import Decimal
 
 from loguru import logger
 from pyrogram import Client, filters
@@ -11,7 +12,7 @@ from filters.create_link_filters import filter_for_create_link_btn_handler, filt
     filter_for_waiting_file_processing_handler, filter_minus_redirect_handler, filter_plus_redirect_handler, \
     filter_link_shortening_handler, filter_processing_links_handler
 from keyboards.bot_keyboards import CANCEL_AND_CLEAR_STATE_KBRD, choose_numb_of_redirect_kbrd, CHOOSE_SHORT_LINK_KBRD, \
-    BACK_TO_HEAD_PAGE_KBRD
+    BACK_TO_HEAD_PAGE_KBRD, MY_BALANCE_PART_KBRD
 from secondary_functions.req_to_bot_api import update_or_create_link, get_settings, get_user_data
 from settings.config import STATES_STORAGE_DCT, LINKS_OBJ_DCT
 
@@ -23,6 +24,20 @@ async def create_link_btn_handler(client, update):
     Устанавливаем состояние, в котором ожидаем получить файл со ссылками,
     запрашиваем сам файл и даём кнопку "Отменить".
     """
+    # Получаем баланс юзера и тариф из БД
+    user_balance = await get_user_data(tlg_id=update.from_user.id)
+    user_balance = Decimal(user_balance.get('balance'))
+    tariff = await get_settings(key='tariff')
+    tariff = Decimal(tariff[0].get('value'))
+    # Если баланс меньше тарифа
+    if tariff > user_balance:
+        await update.edit_message_text(     # Предлагаем пополнить счёт
+            text=f"❗️Недостаточно средств для создания ссылок.\n💰<b>Ваш баланс: {user_balance} руб.</b>\n"
+                 f"🪙<b>Цена одного редиректа для ссылки: {tariff} руб.</b>",
+            reply_markup=MY_BALANCE_PART_KBRD
+        )
+        return
+
     STATES_STORAGE_DCT[update.from_user.id] = 'upload_file_with_links'
     await update.answer(
         text=f"📄Пришлите файл со ссылками:\n\n🔹 каждая ссылка с новой строки;\n"
