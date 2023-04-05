@@ -63,7 +63,6 @@ async def get_statistic_from_keitaro(client, update: Message):
                 original_link = i_elem.get('body').get('name').split('|')[-1].replace(' ', '')
 
     text_for_message = f'🔗<b>Ссылка:</b> {response_comp_id}\n' \
-                       f'🆔<b>ID ссылки:</b>  {original_link}\n' \
                        f'🚶<b>Всего переходов:</b> {all_clicks}\n' \
                        f'🚶‍♂️<b>Уникальных переходов:</b> {unique_clicks}\n'
 
