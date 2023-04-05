@@ -134,7 +134,7 @@ BUTTONS_DCT = {
         callback_data='cancel_payment',
     ),
     'I_PAYD_TO_CARD': InlineKeyboardButton(
-        text='✅Перевод выполнен',
+        text='✅Я перевёл',
         callback_data='i_payd_to_card',
     ),
 }
