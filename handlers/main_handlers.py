@@ -1,5 +1,6 @@
 import datetime
 import random
+import time
 
 from loguru import logger
 from pyrogram import Client, filters
@@ -24,7 +25,7 @@ async def throttling_middleware_message(client, update):
     if update.from_user.id not in BLACK_LIST.keys():  # Если юзера нет в чёрном списке
         # Ставим ему время, когда истекает блокировка
         block_time = random.randint(3, 8)
-        BLACK_LIST[update.from_user.id] = datetime.datetime.now() + datetime.timedelta(seconds=block_time)
+        BLACK_LIST[update.from_user.id] = time.time() + block_time
         await client.send_message(chat_id=update.from_user.id,
                                   text=f'Слишком много запросов! Пожалуйста, подождите {block_time} сек.')
 
@@ -40,7 +41,7 @@ async def throttling_middleware_callback(client, update):
     if update.from_user.id not in BLACK_LIST.keys():  # Если юзера нет в чёрном списке
         # Ставим ему время, когда истекает блокировка
         block_time = random.randint(3, 8)
-        BLACK_LIST[update.from_user.id] = datetime.datetime.now() + datetime.timedelta(seconds=block_time)
+        BLACK_LIST[update.from_user.id] = time.time() + block_time
         await client.send_message(chat_id=update.from_user.id,
                                   text=f'Слишком много запросов! Пожалуйста, подождите {block_time} сек.')
 
