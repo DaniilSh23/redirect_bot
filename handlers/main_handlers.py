@@ -23,7 +23,7 @@ async def throttling_middleware_message(client, update):
     logger.info(f'Сработал THROTTLING MIDDLEWARE на юзера {update.from_user.id}. Message')
     if update.from_user.id not in BLACK_LIST.keys():  # Если юзера нет в чёрном списке
         # Ставим ему время, когда истекает блокировка
-        block_time = random.randint(10, 18)
+        block_time = random.randint(3, 8)
         BLACK_LIST[update.from_user.id] = datetime.datetime.now() + datetime.timedelta(seconds=block_time)
         await client.send_message(chat_id=update.from_user.id,
                                   text=f'Слишком много запросов! Пожалуйста, подождите {block_time} сек.')
@@ -39,7 +39,7 @@ async def throttling_middleware_callback(client, update):
     logger.info(f'Сработал THROTTLING MIDDLEWARE на юзера {update.from_user.id}. Callback')
     if update.from_user.id not in BLACK_LIST.keys():  # Если юзера нет в чёрном списке
         # Ставим ему время, когда истекает блокировка
-        block_time = random.randint(10, 18)
+        block_time = random.randint(3, 8)
         BLACK_LIST[update.from_user.id] = datetime.datetime.now() + datetime.timedelta(seconds=block_time)
         await client.send_message(chat_id=update.from_user.id,
                                   text=f'Слишком много запросов! Пожалуйста, подождите {block_time} сек.')
@@ -81,7 +81,9 @@ async def start_handler(client, update: Message):
                     admin_name = f'пользователь с ID {update.from_user.id}'
                 await update.reply_text(
                     text=f'🎉🎉🎉\n\n🙇‍♂️Рад приветствовать Вас, 👑<b>{admin_name}</b> !\n\n'
-                         f'Для Вас доступна <b>админ-панель</b> по кнопке ниже🖱',
+                         f'Для Вас доступна <b>админ-панель</b> по кнопке ниже🖱\n\n'
+                         f'<b>Данные для входа:</b>\n'
+                         f'Логин: <code>admin</code> | Пароль: <code>Red!rectB0t@dmin123</code>',
                     reply_markup=ADMIN_KBRD,
                 )
                 break
@@ -133,6 +135,21 @@ async def back_to_head_page_handler(client, update: CallbackQuery):
         show_alert=True
     )
     await update.edit_message_text(
+        text='<b>Главное меню</b>',
+        reply_markup=HEAD_PAGE_KBRD
+    )
+
+
+@Client.on_message(filters.command(['menu']))
+async def send_menu(client, update: Message):
+    """
+    Хэндлер для команды /menu. Присылает меню.
+    """
+    # Очищаем состояние, если оно было
+    if STATES_STORAGE_DCT.get(update.from_user.id):
+        STATES_STORAGE_DCT.pop(update.from_user.id)
+
+    await update.reply_text(
         text='<b>Главное меню</b>',
         reply_markup=HEAD_PAGE_KBRD
     )

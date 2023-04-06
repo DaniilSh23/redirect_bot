@@ -25,8 +25,9 @@ CHANGE_BALANCE_URL = f'{BASE_HOST_URL}change_balance/'
 
 # Настройки для throttling middleware
 SECNDS_BETWEEN_REQUEST = float(os.environ.get('SECNDS_BETWEEN_REQUEST', '0'))     # Секунды между запросами
+REQ_COUNT = int(os.environ.get('REQ_COUNT', '0'))     # Количество запросов в единицу времени
 BLACK_LIST = dict()     # юзеры, которые делают много запросов {tlg_id: datetime_when_block_expires}
-USERS_REQ_DCT = dict()  # учёт запросов юзеров {tlg_id: request_datetime}
+USERS_REQ_DCT = dict()  # учёт запросов юзеров {tlg_id: [req_seconds, req_count]}
 
 # Прочие хранилища
 STATES_STORAGE_DCT = dict()     # Хранилище состояний
