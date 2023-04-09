@@ -2,7 +2,7 @@ import aiohttp
 from loguru import logger
 
 
-async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id):
+async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id, period='today'):
     """
     POST запрос к KEITARO для получения статистике по ID компании.
     """
@@ -17,7 +17,7 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id):
         {
             "method": "POST",
             "postData": {
-                'range': {'interval': 'today', 'timezone': 'UTC'},
+                'range': {'interval': period, 'timezone': 'Europe/Moscow', "from": None, "to": None},
                 'columns': [],
                 'metrics': ['clicks', 'stream_unique_clicks', 'bots'],
                 'grouping': ['stream'],

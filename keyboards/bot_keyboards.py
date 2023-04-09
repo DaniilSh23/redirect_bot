@@ -48,7 +48,7 @@ BACK_TO_HEAD_PAGE_KBRD = InlineKeyboardMarkup([
     ],
 ])
 
-BACK_TO_HEAD_PAGE_FROM_STATISTIC_KBRD = InlineKeyboardMarkup([
+BACK_TO_HEAD_PAGE_FROM_STATISTIC_KBRD = InlineKeyboardMarkup([  # TODO: удалить, как будет функция
     [
         BUTTONS_DCT['CHECK_MORE'],
     ],
@@ -102,6 +102,71 @@ PAY_TO_CARD_KBRD = InlineKeyboardMarkup([
         BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
     ],
 ])
+
+
+async def statistic_keyboard(company_id):
+    """
+    Клавиатура в разделе статистики.
+    Записываем в колбэк кнопок по выбору периода company_id
+    """
+    return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton(
+                text='🔹Сегодня',
+                callback_data=f'stat_period {company_id} today',
+            ),
+            InlineKeyboardButton(
+                text='🔹Вчера',
+                callback_data=f'stat_period {company_id} yesterday',
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text='🔹Тек. неделя',
+                callback_data=f'stat_period {company_id} last_monday',
+            ),
+            InlineKeyboardButton(
+                text='🔹Последн. 7 дней',
+                callback_data=f'stat_period {company_id} 7_days_ago',
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text='🔹Тек. месяц',
+                callback_data=f'stat_period {company_id} first_day_of_this_month',
+            ),
+            InlineKeyboardButton(
+                text='🔹Пред. месяц',
+                callback_data=f'stat_period {company_id} previous_month',
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text='🔹Последн. 30 дней',
+                callback_data=f'stat_period {company_id} 1_month_ago',
+            ),
+            InlineKeyboardButton(
+                text='🔹Тек. год',
+                callback_data=f'stat_period {company_id} first_day_of_this_year',
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text='🔹За год',
+                callback_data=f'stat_period {company_id} 1_year_ago',
+            ),
+            InlineKeyboardButton(
+                text='🔹За всё время',
+                callback_data=f'stat_period {company_id} all_time',
+            ),
+        ],
+        [
+            BUTTONS_DCT['CHECK_MORE'],
+        ],
+        [
+            BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
+        ],
+    ])
 
 
 async def choose_numb_of_redirect_kbrd(redirect_numb='1', replenish_balance=False):

@@ -3,7 +3,7 @@ import json
 import aiohttp as aiohttp
 from loguru import logger
 from settings.config import USER_DATA_URL, GET_BOT_ADMINS_URL, LINKS_URL, LINK_SET_URL, START_WRAPPING_URL, \
-    PAYMENTS_URL, CHANGE_BALANCE_URL
+    PAYMENTS_URL, CHANGE_BALANCE_URL, GET_LINK_OWNER
 
 
 async def post_user_data(user_data):
@@ -138,4 +138,22 @@ async def post_for_change_balance(data):
                 return True
             else:
                 logger.warning(f'Неудачный запрос для изменения баланса.')
+                return False
+
+
+async def get_link_owner(company_id):
+    """
+    GET запрос для получение TG ID владельца ссылки.
+    """
+    url = f'{GET_LINK_OWNER}?company_id={company_id}'
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=url) as response:
+            if response.status == 200:
+                logger.success(f'Успешный запрос для получения владельца ссылки.')
+                return await response.json()
+            elif response.status == 404:
+                logger.warning(f'Владелец ссылки не найден. Статус 404.')
+                return False
+            else:
+                logger.warning(f'Неудачный запрос для получения владельца ссылки.')
                 return False
