@@ -21,6 +21,9 @@ HEAD_PAGE_KBRD = InlineKeyboardMarkup([
         BUTTONS_DCT['MY_BALANCE'],
         BUTTONS_DCT['REPLENISH_BALANCE'],
     ],
+    [
+        BUTTONS_DCT['FEEDBACK_CHAT'],
+    ]
 ])
 
 CANCEL_AND_CLEAR_STATE_KBRD = InlineKeyboardMarkup([
@@ -48,14 +51,6 @@ BACK_TO_HEAD_PAGE_KBRD = InlineKeyboardMarkup([
     ],
 ])
 
-BACK_TO_HEAD_PAGE_FROM_STATISTIC_KBRD = InlineKeyboardMarkup([  # TODO: удалить, как будет функция
-    [
-        BUTTONS_DCT['CHECK_MORE'],
-    ],
-    [
-        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
-    ],
-])
 
 MY_BALANCE_PART_KBRD = InlineKeyboardMarkup([
     [

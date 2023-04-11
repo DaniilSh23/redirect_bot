@@ -1,6 +1,6 @@
 from pyrogram.types import InlineKeyboardButton
 
-from settings.config import BASE_HOST_URL
+from settings.config import BASE_HOST_URL, FEEDBACK_CHAT_URL
 
 BUTTONS_DCT = {
     'ADMIN_PANEL': InlineKeyboardButton(
@@ -40,6 +40,10 @@ BUTTONS_DCT = {
     'BACK_TO_HEAD_PAGE': InlineKeyboardButton(
         text=f'🔙На главную',
         callback_data='back_to_head_page'
+    ),
+    'FEEDBACK_CHAT': InlineKeyboardButton(
+        text=f'🌟Оставить отзыв',
+        url=FEEDBACK_CHAT_URL
     ),
 
     # Выбор кол-ва редиректов
