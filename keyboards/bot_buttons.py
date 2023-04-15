@@ -42,7 +42,7 @@ BUTTONS_DCT = {
         callback_data='back_to_head_page'
     ),
     'FEEDBACK_CHAT': InlineKeyboardButton(
-        text=f'🌟Оставить отзыв',
+        text=f'🌟ОТЗЫВЫ',
         url=FEEDBACK_CHAT_URL
     ),
 
