@@ -1,6 +1,7 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from keyboards.bot_buttons import BUTTONS_DCT
+from secondary_functions.req_to_bot_api import get_settings
 
 ADMIN_KBRD = InlineKeyboardMarkup([
     [
@@ -231,4 +232,32 @@ async def card_payment_processing_kbrd(tlg_id):
                 callback_data=f'decline_card_payment {tlg_id}',
             )
         ],
+    ])
+
+
+async def form_head_page_keyboard():
+    """
+    Формируем клавиатуру для главной странице.
+    (Эта функция нужна, чтобы подтягивать из БД ссылку на канал с отзывами)
+    """
+    feedback_channel_link = await get_settings(key='feedback_link')
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT['CREATE_LINK'],
+            BUTTONS_DCT['GET_STATISTIC'],
+        ],
+        [
+            BUTTONS_DCT['FAQ'],
+            BUTTONS_DCT['SUPPORT'],
+        ],
+        [
+            BUTTONS_DCT['MY_BALANCE'],
+            BUTTONS_DCT['REPLENISH_BALANCE'],
+        ],
+        [
+            InlineKeyboardButton(
+                text=f'🌟ОТЗЫВЫ',
+                url=feedback_channel_link[0].get('value')
+            )
+        ]
     ])

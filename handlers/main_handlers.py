@@ -9,7 +9,7 @@ from pyrogram.types import CallbackQuery, Message
 
 from filters.main_filters import filter_throttling_middleware, filter_for_cancel_and_clear_state, \
     filter_back_to_head_page
-from keyboards.bot_keyboards import ADMIN_KBRD, HEAD_PAGE_KBRD
+from keyboards.bot_keyboards import ADMIN_KBRD, HEAD_PAGE_KBRD, form_head_page_keyboard
 from secondary_functions.req_to_bot_api import post_user_data, get_settings
 from settings.config import BLACK_LIST, STATES_STORAGE_DCT
 
@@ -97,7 +97,7 @@ async def start_handler(client, update: Message):
         text='🤝Здравствуйте.\n🎁Этот бот поможет <b>обернуть Ваши ссылки</b> для редиректа.\n\n'
              f'🪙<b>Стоимость</b> одного редиректа для ссылки: <b>{response[0].get("value")} руб.</b>\n\n'
              'Нажимайте на кнопку <b>🔗СОЗДАТЬ ССЫЛКУ</b> и приступим.',
-        reply_markup=HEAD_PAGE_KBRD
+        reply_markup=await form_head_page_keyboard()
     )
 
 
@@ -118,7 +118,7 @@ async def cancel_and_clear_state_handler(client, update: CallbackQuery):
     )
     await update.edit_message_text(
         text='<b>Главное меню</b>',
-        reply_markup=HEAD_PAGE_KBRD
+        reply_markup=await form_head_page_keyboard()
     )
 
 
@@ -137,7 +137,7 @@ async def back_to_head_page_handler(client, update: CallbackQuery):
     )
     await update.edit_message_text(
         text='<b>Главное меню</b>',
-        reply_markup=HEAD_PAGE_KBRD
+        reply_markup=await form_head_page_keyboard()
     )
 
 
@@ -152,5 +152,5 @@ async def send_menu(client, update: Message):
 
     await update.reply_text(
         text='<b>Главное меню</b>',
-        reply_markup=HEAD_PAGE_KBRD
+        reply_markup=await form_head_page_keyboard()
     )

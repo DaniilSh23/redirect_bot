@@ -37,7 +37,9 @@ async def get_user_data(tlg_id):
 
 async def get_settings(key):
     """
-    GET запрос для получения списка админов бота.
+    GET запрос для получения значения какой-либо настройки бота.
+    Вернет JSON, в котором в списке лежат ключи и значения настроек.
+    [{"key": "value"}, ...]
     """
     url = ''.join([GET_BOT_ADMINS_URL, f'?key={key}'])
     async with aiohttp.ClientSession() as session:
