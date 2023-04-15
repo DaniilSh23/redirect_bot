@@ -3,8 +3,7 @@ from pyrogram.types import CallbackQuery, Message
 
 from filters.get_statistic_filters import filter_ask_user_for_comp_id, filter_get_statistic_from_keitaro, \
     get_statistic_from_period_filter
-from keyboards.bot_keyboards import CANCEL_AND_CLEAR_STATE_KBRD, \
-    BACK_TO_HEAD_PAGE_FROM_STATISTIC_KBRD, statistic_keyboard
+from keyboards.bot_keyboards import CANCEL_AND_CLEAR_STATE_KBRD, statistic_keyboard
 from secondary_functions.req_to_bot_api import get_link_owner
 from secondary_functions.requests_to_other_services import post_req_to_keitaro_for_get_stat_by_comp_id
 from settings.config import STATES_STORAGE_DCT
