@@ -18,7 +18,7 @@ BUTTONS_DCT = {
         callback_data='get_statistic'
     ),
     'FAQ': InlineKeyboardButton(
-        text=f'❓FAQ',
+        text=f'❓ПРАВИЛА/FAQ',
         callback_data='faq_btn'
     ),
     'SUPPORT': InlineKeyboardButton(
