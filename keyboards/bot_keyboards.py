@@ -34,6 +34,9 @@ CANCEL_AND_CLEAR_STATE_KBRD = InlineKeyboardMarkup([
 ])
 
 CHOOSE_SHORT_LINK_KBRD = InlineKeyboardMarkup([
+    # [
+    #     BUTTONS_DCT['custom_domain'],
+    # ],
     [
         # BUTTONS_DCT['cutt.ly'],
         BUTTONS_DCT['cutt.us'],

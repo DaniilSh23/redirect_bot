@@ -109,6 +109,10 @@ BUTTONS_DCT = {
         text=f'🔹t9y.me',
         callback_data='short_link t9y.me'
     ),
+    'custom_domain': InlineKeyboardButton(
+        text=f'🔹наш домен 👍',
+        callback_data='short_link custom_domain'
+    ),
 
     # Кнопка для раздела статистики
     'CHECK_MORE': InlineKeyboardButton(
