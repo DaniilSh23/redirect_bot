@@ -110,7 +110,7 @@ BUTTONS_DCT = {
         callback_data='short_link t9y.me'
     ),
     'custom_domain': InlineKeyboardButton(
-        text=f'🔹Наши домены 🏰',
+        text=f'🔹Наши домены ⚜️',
         callback_data='short_link custom_domain'
     ),
 
