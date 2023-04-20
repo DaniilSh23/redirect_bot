@@ -107,10 +107,6 @@ async def write_pay_amount_handler(client, update: Message):
     elif user_payment.pay_system_type == 'crystal':
         bill_url = await user_payment.crystalpay_create_invoice()
 
-    elif user_payment.pay_system_type == 'to_card':
-        # TODO: продумать логику с оплатой переводом и сделать
-        pass
-
     # Создаём в БД запись о платеже
     response = await user_payment.create_payment_in_db()
     if not response:
@@ -176,8 +172,11 @@ async def confirm_payment_handler(client, update: CallbackQuery):
         await user_payment_obj.create_payment_in_db()
 
         # Зачисляем средства на баланс
-        if not await user_payment_obj.add_funds_to_balance():  # Функция вызывается сразу в отрицательном условии
+        add_funds_rslt = await user_payment_obj.add_funds_to_balance(
+            description=f"Пополнение баланса, через {user_payment_obj.pay_system_type}"
+        )
 
+        if not add_funds_rslt:
             # ОТПРАВЛЯЕМ АДМИНАМ ПРЕДУПРЕЖДЕНИЕ О ПРОБЛЕМЫ ЗАЧИСЛЕНИЯ СРЕДСТВ НА БАЛАНС
             bot_admins = await get_settings(key='redirect_bot_admin')
             if bot_admins:
@@ -348,6 +347,7 @@ async def confirm_card_payment_handler(client, update: Message):
         "action": "+",
         "value": update.text,
         "tlg_id": payer_id,
+        "description": "Пополнение баланса переводом на карту."
     })
     if not response:    # Обработка неудачного запроса
         await update.reply_text(

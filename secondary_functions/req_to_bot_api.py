@@ -3,7 +3,7 @@ import json
 import aiohttp as aiohttp
 from loguru import logger
 from settings.config import USER_DATA_URL, GET_BOT_ADMINS_URL, LINKS_URL, LINK_SET_URL, START_WRAPPING_URL, \
-    PAYMENTS_URL, CHANGE_BALANCE_URL, GET_LINK_OWNER
+    PAYMENTS_URL, CHANGE_BALANCE_URL, GET_LINK_OWNER, TRANSACTION_URL
 
 
 async def post_user_data(user_data):
@@ -158,4 +158,18 @@ async def get_link_owner(company_id):
                 return False
             else:
                 logger.warning(f'Неудачный запрос для получения владельца ссылки.')
+                return False
+
+
+async def post_for_create_transaction(data):
+    """
+    POST запрос для создания транзакции
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=TRANSACTION_URL, json=data) as response:
+            if response.status == 200:
+                logger.success(f'Успешный запрос для создания транзакции.')
+                return True
+            else:
+                logger.warning(f'Неудачный запрос для создания транзакции.')
                 return False

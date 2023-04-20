@@ -25,6 +25,7 @@ START_WRAPPING_URL = f'{BASE_HOST_URL}start_wrapping/'
 PAYMENTS_URL = f'{BASE_HOST_URL}payments/'
 CHANGE_BALANCE_URL = f'{BASE_HOST_URL}change_balance/'
 GET_LINK_OWNER = f'{BASE_HOST_URL}get_link_owner/'
+TRANSACTION_URL = f'{BASE_HOST_URL}transaction/'
 
 # Настройки для throttling middleware
 SECNDS_BETWEEN_REQUEST = float(os.environ.get('SECNDS_BETWEEN_REQUEST', '0'))     # Секунды между запросами

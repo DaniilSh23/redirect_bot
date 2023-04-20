@@ -104,7 +104,7 @@ class UserPayments:
         if response:
             return True
 
-    async def add_funds_to_balance(self):
+    async def add_funds_to_balance(self, description):
         """
         Метод для начисления средств на баланс юзера.
         """
@@ -112,4 +112,5 @@ class UserPayments:
             "action": "+",
             "tlg_id": self.tlg_id,
             "value": self.amount,
+            "description": description,
         })
