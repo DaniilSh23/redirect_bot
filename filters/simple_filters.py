@@ -22,6 +22,14 @@ async def func_my_balance_handler(_, __, query):
     return query.data == 'my_balance'
 
 
+async def get_transactions_func(_, __, query):
+    """
+    Фильтр для хэндлера получения транзакций.
+    """
+    return query.data == 'transactions_story'
+
+
 filter_for_faq_handler = filters.create(func_faq_handler)
 filter_for_support_handler = filters.create(func_support_handler)
 filter_for_my_balance_handler = filters.create(func_my_balance_handler)
+get_transactions_filter = filters.create(get_transactions_func)

@@ -61,6 +61,19 @@ MY_BALANCE_PART_KBRD = InlineKeyboardMarkup([
         BUTTONS_DCT['REPLENISH_BALANCE'],
     ],
     [
+        BUTTONS_DCT['TRANSACTIONS_STORY'],
+    ],
+    [
+        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
+    ],
+])
+
+
+AFTER_GET_TRANSACTIONS_KBRD = InlineKeyboardMarkup([
+    [
+        BUTTONS_DCT['REPLENISH_BALANCE'],
+    ],
+    [
         BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
     ],
 ])

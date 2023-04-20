@@ -1,9 +1,10 @@
 from pyrogram import Client
 from pyrogram.types import CallbackQuery
 
-from filters.simple_filters import filter_for_faq_handler, filter_for_support_handler, filter_for_my_balance_handler
-from keyboards.bot_keyboards import BACK_TO_HEAD_PAGE_KBRD, MY_BALANCE_PART_KBRD
-from secondary_functions.req_to_bot_api import get_user_data, get_settings
+from filters.simple_filters import filter_for_faq_handler, filter_for_support_handler, filter_for_my_balance_handler, \
+    get_transactions_filter
+from keyboards.bot_keyboards import BACK_TO_HEAD_PAGE_KBRD, MY_BALANCE_PART_KBRD, AFTER_GET_TRANSACTIONS_KBRD
+from secondary_functions.req_to_bot_api import get_user_data, get_settings, get_transactions
 
 
 @Client.on_callback_query(filter_for_faq_handler)
@@ -65,3 +66,18 @@ async def my_balance_handler(client, update: CallbackQuery):
         text=f'💰<b>Ваш баланс:</b> {response.get("balance")} руб.',
         reply_markup=MY_BALANCE_PART_KBRD
     )
+
+
+@Client.on_callback_query(get_transactions_filter)
+async def get_transaction_handler(client, update: CallbackQuery):
+    """
+    Хэндлер для получения транзакций.
+    """
+    trans_response = await get_transactions(tlg_id=update.from_user.id)     # Запрос для формирования файла транзакций
+    balance_response = await get_user_data(tlg_id=update.from_user.id)  # Запрос к БД для получения баланса
+    if trans_response and balance_response:
+        await update.edit_message_text(
+            text=f'👌<b>Окей.\nЯ соберу всю Вашу историю операций в один файл и пришлю. Ожидайте...</b>'
+                 f'\n\n💰<b>Ваш баланс:</b> {balance_response.get("balance")} руб.',
+            reply_markup=AFTER_GET_TRANSACTIONS_KBRD
+        )

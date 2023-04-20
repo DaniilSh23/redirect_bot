@@ -28,7 +28,7 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
         return
 
     # Если данные о платеже есть в БД
-    if payment_from_db.get('tlg_id'):
+    if payment_from_db != 404 and payment_from_db.get('tlg_id'):
         payment_obj = UserPayments(   # Создаём объект класса UserPayments
             tlg_id=update.from_user.id,
             pay_system_type=payment_from_db.get("pay_system_type"),

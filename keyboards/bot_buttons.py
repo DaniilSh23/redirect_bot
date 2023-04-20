@@ -33,6 +33,10 @@ BUTTONS_DCT = {
         text=f'💸ПОПОЛНИТЬ БАЛАНС',
         callback_data='replenish_balance'
     ),
+    'TRANSACTIONS_STORY': InlineKeyboardButton(
+        text=f'🧾ИСТОРИЯ ОПЕРАЦИЙ',
+        callback_data='transactions_story'
+    ),
     'CANCEL_AND_CLEAR_STATE': InlineKeyboardButton(
         text=f'❌Отменить',
         callback_data='cancel_and_clear_state'

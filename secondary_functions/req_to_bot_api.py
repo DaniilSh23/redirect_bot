@@ -124,6 +124,9 @@ async def req_for_get_payment(tlg_id=None, payment_for_dlt_id=None):
             if response.status == 200:
                 logger.success(f'Успешный запрос для получения/удаления в БД данных о платеже.')
                 return await response.json()
+            elif response.status == 404:
+                logger.success(f'Успешный запрос, но активных счетов не найдено.')
+                return 404
             else:
                 logger.warning(f'Неудачный запрос для получения/удаления в БД данных о платеже.')
                 return False
@@ -167,6 +170,20 @@ async def post_for_create_transaction(data):
     """
     async with aiohttp.ClientSession() as session:
         async with session.post(url=TRANSACTION_URL, json=data) as response:
+            if response.status == 200:
+                logger.success(f'Успешный запрос для создания транзакции.')
+                return True
+            else:
+                logger.warning(f'Неудачный запрос для создания транзакции.')
+                return False
+
+
+async def get_transactions(tlg_id):
+    """
+    GET запрос для получения транзакций. Будет запущена задача по формированию файла и отправке в телегу.
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=f'{TRANSACTION_URL}?tlg_id={tlg_id}') as response:
             if response.status == 200:
                 logger.success(f'Успешный запрос для создания транзакции.')
                 return True
