@@ -63,7 +63,8 @@ class UserPayments:
         # Получаем инфу о счёте, чтобы достать expire_at
         bill_info = crystalpay_api.Invoice.getinfo(self.bill_id)
         # Преобразуем строку в объект datetime и сохраняем в классе
-        self.bill_expire_at = datetime.datetime.strptime(bill_info.get("expired_at"), '%Y-%m-%d %H:%M:%S')
+        # self.bill_expire_at = datetime.datetime.strptime(bill_info.get("expired_at"), '%Y-%m-%d %H:%M:%S')
+        self.bill_expire_at = bill_info.get("expired_at")
         return self.bill_url
 
     async def check_crystalpay_invoice(self):
@@ -97,7 +98,7 @@ class UserPayments:
             "pay_system_type": self.pay_system_type,
             "amount": self.amount,
             "bill_id": self.bill_id,
-            "bill_expire_at": self.bill_expire_at.strftime('%Y-%m-%d %H:%M:%S'),
+            "bill_expire_at": self.bill_expire_at,
             "bill_status": self.bill_status,
             "bill_url": self.bill_url,
         })

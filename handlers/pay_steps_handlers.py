@@ -187,7 +187,7 @@ async def confirm_payment_handler(client, update: CallbackQuery):
             if bot_admins:
                 for i_bot_admin in bot_admins:
                     await client.send_message(
-                        chat_id=i_bot_admin,
+                        chat_id=i_bot_admin.get('value'),
                         text=f'<b>СРОЧНО</b>‼️\n\n'
                              f'🛰Хьюстон, у нас проблемы!\n\n'
                              f'Юзер с TG ID {user_payment_obj.tlg_id} положил себе на баланс '
