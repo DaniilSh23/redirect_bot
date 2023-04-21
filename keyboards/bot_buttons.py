@@ -130,11 +130,11 @@ BUTTONS_DCT = {
         callback_data='pay_method qiwi',
     ),
     'CRYSTAL_PAY_METHD': InlineKeyboardButton(
-        text='🪙Crystal Pay',
+        text='🌑 Crystal Pay',
         callback_data='pay_method crystal',
     ),
     'TO_CARD_PAY_METHD': InlineKeyboardButton(
-        text='🪙Перевод на карту',
+        text='🌕 Перевод на карту',
         callback_data='pay_to_card',
     ),
     'CONFIRM_PAYMENT': InlineKeyboardButton(
