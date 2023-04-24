@@ -84,7 +84,9 @@ async def get_doc_with_links_handler(client, update: Message):
 
             # проверка, что строка в файле - это ссылка
             is_link = False
+            i_line = i_line.replace('\ufeff', '')   # Устраняем BOM символ, если он будет
             parsed_lnk = urlparse(i_line)
+            logger.debug(f'Разбираемся ссылку на детали : {i_line}')
             if parsed_lnk.scheme and parsed_lnk.netloc and '.' in parsed_lnk.netloc:
                 # Проверяем, чтобы в адресе не было 2х точек подряд
                 for i_indx, i_elem in enumerate(parsed_lnk.netloc):
