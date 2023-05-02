@@ -36,17 +36,16 @@ async def get_statistic_from_keitaro(client, update: Message):
         )
         return
 
-    # TODO: раскоментить, это было для теста
-    # # Проверяем, что статистику запрашивает владелец ссылки
-    # check_owner = await get_link_owner(company_id=int(update.text))
-    # if not check_owner or int(check_owner.get('link_owner')) != int(update.from_user.id):
-    #     await update.reply_text(
-    #         text=f'🤷‍♂️Не найдена статистика по ссылке с ID {update.text}.\n' \
-    #              f'Возможно вы ввели некорректный ID или ссылка Вам не принадлежит.\n\n' \
-    #              f'🆔<b>Пожалуйста, введите корректный ID ссылки.</b>',
-    #         reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
-    #     )
-    #     return
+    # Проверяем, что статистику запрашивает владелец ссылки
+    check_owner = await get_link_owner(company_id=int(update.text))
+    if not check_owner or int(check_owner.get('link_owner')) != int(update.from_user.id):
+        await update.reply_text(
+            text=f'🤷‍♂️Не найдена статистика по ссылке с ID {update.text}.\n' \
+                 f'Возможно вы ввели некорректный ID или ссылка Вам не принадлежит.\n\n' \
+                 f'🆔<b>Пожалуйста, введите корректный ID ссылки.</b>',
+            reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+        )
+        return
 
     # Очищаем стэйт
     STATES_STORAGE_DCT.pop(update.from_user.id)
