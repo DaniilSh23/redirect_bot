@@ -36,16 +36,17 @@ async def get_statistic_from_keitaro(client, update: Message):
         )
         return
 
-    # Проверяем, что статистику запрашивает владелец ссылки
-    check_owner = await get_link_owner(company_id=int(update.text))
-    if not check_owner or int(check_owner.get('link_owner')) != int(update.from_user.id):
-        await update.reply_text(
-            text=f'🤷‍♂️Не найдена статистика по ссылке с ID {update.text}.\n' \
-                 f'Возможно вы ввели некорректный ID или ссылка Вам не принадлежит.\n\n' \
-                 f'🆔<b>Пожалуйста, введите корректный ID ссылки.</b>',
-            reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
-        )
-        return
+    # TODO: раскоментить, это было для теста
+    # # Проверяем, что статистику запрашивает владелец ссылки
+    # check_owner = await get_link_owner(company_id=int(update.text))
+    # if not check_owner or int(check_owner.get('link_owner')) != int(update.from_user.id):
+    #     await update.reply_text(
+    #         text=f'🤷‍♂️Не найдена статистика по ссылке с ID {update.text}.\n' \
+    #              f'Возможно вы ввели некорректный ID или ссылка Вам не принадлежит.\n\n' \
+    #              f'🆔<b>Пожалуйста, введите корректный ID ссылки.</b>',
+    #         reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+    #     )
+    #     return
 
     # Очищаем стэйт
     STATES_STORAGE_DCT.pop(update.from_user.id)
@@ -56,28 +57,36 @@ async def get_statistic_from_keitaro(client, update: Message):
     # Выполняем запрос к кейтаро
     response = await post_req_to_keitaro_for_get_stat_by_comp_id(company_id=int(update.text))
 
-    response_comp_id = '<i>Данные не получены</i>'
+    company_id = int(update.text)
     all_clicks = '<i>Данные не получены или 0</i>'
     unique_clicks = '<i>Данные не получены или 0</i>'
+    bots = '<i>Данные не получены или 0</i>'
 
     if response:
-        for i_elem in response:  # В ответе будет список из словарей, итерируемся по ним
+        # TODO: закоментил старую обработку запроса и пока оставляю, потом стоит удалить
 
-            # Отлавливаем тот словарь, у которого в body лежит rows = [поток для ботов, осн. поток]
-            if i_elem.get('body') and i_elem.get('body').get('rows'):
-                for j_elem in i_elem.get('body').get('rows'):
-                    if j_elem.get('stream') == 'RedirectStream':  # Отлавливаем основной поток и забираем клики
-                        all_clicks = j_elem.get('clicks')
-                        unique_clicks = j_elem.get('stream_unique_clicks')
+        all_clicks = response.get("summary").get("clicks")
+        unique_clicks = response.get("summary").get("stream_unique_clicks")
+        bots = response.get("summary").get("bots")
 
-            # Отлавливаем тот словарь c body, в котором ещё лежит ID компании и её название
-            if i_elem.get('body') and i_elem.get('body').get('id') and i_elem.get('body').get('name'):
-                response_comp_id = i_elem.get('body').get('id')
+        # for i_elem in response:  # В ответе будет список из словарей, итерируемся по ним
+        #
+        #     # Отлавливаем тот словарь, у которого в body лежит rows = [поток для ботов, осн. поток]
+        #     if i_elem.get('body') and i_elem.get('body').get('rows'):
+        #         for j_elem in i_elem.get('body').get('rows'):
+        #             if j_elem.get('stream') == 'RedirectStream':  # Отлавливаем основной поток и забираем клики
+        #                 all_clicks = j_elem.get('clicks')
+        #                 unique_clicks = j_elem.get('stream_unique_clicks')
+        #
+        #     # Отлавливаем тот словарь c body, в котором ещё лежит ID компании и её название
+        #     if i_elem.get('body') and i_elem.get('body').get('id') and i_elem.get('body').get('name'):
+        #         response_comp_id = i_elem.get('body').get('id')
 
     text_for_message = f'📆Период статистики: <b>сегодня</b>\n\n' \
-                       f'🔗<b>Ссылка:</b> {response_comp_id}\n' \
+                       f'🔗<b>ID ссылки:</b> {company_id}\n' \
                        f'🚶<b>Всего переходов:</b> {all_clicks}\n' \
-                       f'🚶‍♂️<b>Уникальных переходов:</b> {unique_clicks}\n'
+                       f'🚶‍♂️<b>Уникальных переходов:</b> {unique_clicks if unique_clicks else "🤷‍♂️"}\n' \
+                       f'🤖 <b>Боты:</b> {bots if bots else "🤷‍♂️"}\n'
 
     # Даём ответ со статистикой
     await info_msg.edit_text(
@@ -102,23 +111,29 @@ async def get_statistic_from_period(client, update):
         period=update.data.split()[2],
     )
 
-    response_comp_id = '<i>Данные не получены</i>'
+    company_id = int(update.data.split()[1])
     all_clicks = '<i>Данные не получены или 0</i>'
     unique_clicks = '<i>Данные не получены или 0</i>'
+    bots = '<i>Данные не получены или 0</i>'
 
     if response:
-        for i_elem in response:  # В ответе будет список из словарей, итерируемся по ним
+        all_clicks = response.get("summary").get("clicks")
+        unique_clicks = response.get("summary").get("stream_unique_clicks")
+        bots = response.get("summary").get("bots")
 
-            # Отлавливаем тот словарь, у которого в body лежит rows = [поток для ботов, осн. поток]
-            if i_elem.get('body') and i_elem.get('body').get('rows'):
-                for j_elem in i_elem.get('body').get('rows'):
-                    if j_elem.get('stream') == 'RedirectStream':  # Отлавливаем основной поток и забираем клики
-                        all_clicks = j_elem.get('clicks')
-                        unique_clicks = j_elem.get('stream_unique_clicks')
-
-            # Отлавливаем тот словарь c body, в котором ещё лежит ID компании и её название
-            if i_elem.get('body') and i_elem.get('body').get('id') and i_elem.get('body').get('name'):
-                response_comp_id = i_elem.get('body').get('id')
+        # TODO: старая обработка пока остаётся здесь закоменченная, потом удалить.
+        # for i_elem in response:  # В ответе будет список из словарей, итерируемся по ним
+        #
+        #     # Отлавливаем тот словарь, у которого в body лежит rows = [поток для ботов, осн. поток]
+        #     if i_elem.get('body') and i_elem.get('body').get('rows'):
+        #         for j_elem in i_elem.get('body').get('rows'):
+        #             if j_elem.get('stream') == 'RedirectStream':  # Отлавливаем основной поток и забираем клики
+        #                 all_clicks = j_elem.get('clicks')
+        #                 unique_clicks = j_elem.get('stream_unique_clicks')
+        #
+        #     # Отлавливаем тот словарь c body, в котором ещё лежит ID компании и её название
+        #     if i_elem.get('body') and i_elem.get('body').get('id') and i_elem.get('body').get('name'):
+        #         response_comp_id = i_elem.get('body').get('id')
 
     stat_periods = {
         "today": "сегодня",
@@ -133,9 +148,10 @@ async def get_statistic_from_period(client, update):
         "all_time": "за всё время",
     }
     text_for_message = f'📆Период статистики: <b>{stat_periods.get(update.data.split()[2])}</b>\n\n' \
-                       f'🔗<b>Ссылка:</b> {response_comp_id}\n' \
+                       f'🔗<b>ID ссылки:</b> {company_id}\n' \
                        f'🚶<b>Всего переходов:</b> {all_clicks}\n' \
-                       f'🚶‍♂️<b>Уникальных переходов:</b> {unique_clicks}\n'
+                       f'🚶‍♂️<b>Уникальных переходов:</b> {unique_clicks if unique_clicks else "🤷‍♂️"}\n' \
+                       f'🤖 <b>Боты:</b> {bots if bots else "🤷‍♂️"}\n'
 
     # Даём ответ со статистикой
     await info_msg.edit_text(
