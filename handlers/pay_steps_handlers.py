@@ -9,7 +9,7 @@ from filters.payment_filters import filters_choose_pay_method, filter_ask_pay_am
 from keyboards.bot_keyboards import PAY_METHODS_KBRD, CANCEL_AND_CLEAR_STATE_KBRD, BACK_TO_HEAD_PAGE_KBRD, \
     WAITING_FOR_PAYMENT_KBRD, ADMIN_KBRD, PAY_TO_CARD_KBRD, card_payment_processing_kbrd
 from secondary_functions.req_to_bot_api import req_for_get_payment, get_settings, post_for_change_balance
-from settings.config import PAYMENTS_OBJ_DCT, STATES_STORAGE_DCT, TEMP_STORAGE_DCT
+from settings.config import PAYMENTS_OBJ_DCT, STATES_STORAGE_DCT, TEMP_STORAGE_DCT, MY_LOGGER
 
 
 @Client.on_callback_query(filters_choose_pay_method)
@@ -173,12 +173,14 @@ async def confirm_payment_handler(client, update: CallbackQuery):
 
     if user_payment_obj.bill_status:
         # Отправляем запрос на установку статуса "оплачен" для данного счёта
+        MY_LOGGER.debug(f'Отправка запрос на установку статуса "оплачен" для счёта.')
         await user_payment_obj.create_payment_in_db()
 
         # Зачисляем средства на баланс
         add_funds_rslt = await user_payment_obj.add_funds_to_balance(
             description=f"Пополнение баланса, через {user_payment_obj.pay_system_type}"
         )
+        MY_LOGGER.debug(f'Результат запроса для зачисления средств на баланс: {add_funds_rslt}')
 
         if not add_funds_rslt:
             # ОТПРАВЛЯЕМ АДМИНАМ ПРЕДУПРЕЖДЕНИЕ О ПРОБЛЕМЫ ЗАЧИСЛЕНИЯ СРЕДСТВ НА БАЛАНС
@@ -196,7 +198,6 @@ async def confirm_payment_handler(client, update: CallbackQuery):
                              f'чтобы проблемы не плодились.',
                         reply_markup=ADMIN_KBRD,
                     )
-                    break
 
 
 @Client.on_callback_query(cancel_payment_filter)

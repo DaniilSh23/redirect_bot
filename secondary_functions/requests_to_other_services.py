@@ -15,7 +15,7 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id, period='today'
     # payload = [
     #     # {
     #     #     "method": "GET",
-    #     #     "object": "reports.parameterAliases",
+    #     #     "object": "reports.parameterAliases",qiwi_create_invoice
     #     #     "campaign_id": f"{company_id}"
     #     # },
     #     # Получаем данные по кликам на ссылку

@@ -4,7 +4,7 @@ from glQiwiApi import QiwiP2PClient
 from secondary_functions.crystalpay_sdk import CrystalPAY, InvoiceType
 
 from secondary_functions.req_to_bot_api import post_for_create_payment, post_for_change_balance
-from settings.config import SECRET_QIWI_P2P, CRYSTAL_PAY_LOGIN, CRYSTAL_PAY_SECRET1, CRYSTAL_PAY_SECRET2
+from settings.config import SECRET_QIWI_P2P, CRYSTAL_PAY_LOGIN, CRYSTAL_PAY_SECRET1, CRYSTAL_PAY_SECRET2, MY_LOGGER
 
 
 class UserPayments:
@@ -76,6 +76,8 @@ class UserPayments:
         bill_info = crystalpay_api.Invoice.getinfo(self.bill_id)
 
         bill_state = bill_info.get('state')
+        MY_LOGGER.debug(f'Ответ crystalpay при запросе статуса платежа: {bill_state}')
+
         if bill_state == 'notpayed':
             pay_status = 'Не оплачен'
         elif bill_state == 'payed':
@@ -93,7 +95,7 @@ class UserPayments:
         """
         Метод для создания записи о платеже в БД.
         """
-        response = await post_for_create_payment(data={
+        data = {
             "tlg_id": self.tlg_id,
             "pay_system_type": self.pay_system_type,
             "amount": self.amount,
@@ -101,7 +103,10 @@ class UserPayments:
             "bill_expire_at": self.bill_expire_at,
             "bill_status": self.bill_status,
             "bill_url": self.bill_url,
-        })
+        }
+        MY_LOGGER.debug(f'Данные, которые отправляем при создании/изменении записи о платеже в БД: {data}')
+        response = await post_for_create_payment(data=data)
+        MY_LOGGER.debug(f'Результат при создании/изменении записи о платеже в БД: {response}')
         if response:
             return True
 
@@ -109,9 +114,11 @@ class UserPayments:
         """
         Метод для начисления средств на баланс юзера.
         """
-        return await post_for_change_balance(data={
+        data = {
             "action": "+",
             "tlg_id": self.tlg_id,
             "value": self.amount,
             "description": description,
-        })
+        }
+        MY_LOGGER.debug(f'Данные, которые отправляем при начислении средств на баланс: {data}')
+        return await post_for_change_balance(data=data)

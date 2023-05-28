@@ -1,7 +1,13 @@
 import os
+import sys
+from pathlib import Path
+import loguru
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Абсолютный путь к корню проекта
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Данные Telegram
 TOKEN = os.environ.get('TOKEN', '5265303938:AAE1daGp-VJR0R15J9tHksR38hQlbCXMYdU')
@@ -38,3 +44,17 @@ STATES_STORAGE_DCT = dict()     # Хранилище состояний
 LINKS_OBJ_DCT = dict()  # Словарь для хранения ссылок к объектам класса RedirectLinks
 PAYMENTS_OBJ_DCT = dict()   # Словарь для хранения ссылок к объектам класса UserPayments
 TEMP_STORAGE_DCT = dict()   # Временное хранилище, в котором может лежать что угодно, но ключ всегда TG ID
+
+# Настройки логгера
+MY_LOGGER = loguru.logger
+MY_LOGGER.remove()  # Удаляем все предыдущие обработчики логов
+MY_LOGGER.add(sink=sys.stdout, level='DEBUG')   # Все логи от DEBUG и выше в stdout
+MY_LOGGER.add(  # системные логи в файл
+    sink=f'{BASE_DIR}/logs/sys_log.log',
+    level='DEBUG',
+    rotation='10 MB',
+    compression="zip",
+    enqueue=True,
+    backtrace=True,
+    diagnose=True
+)

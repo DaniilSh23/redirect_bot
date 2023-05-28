@@ -3,7 +3,7 @@ import json
 import aiohttp as aiohttp
 from loguru import logger
 from settings.config import USER_DATA_URL, GET_BOT_ADMINS_URL, LINKS_URL, LINK_SET_URL, START_WRAPPING_URL, \
-    PAYMENTS_URL, CHANGE_BALANCE_URL, GET_LINK_OWNER, TRANSACTION_URL
+    PAYMENTS_URL, CHANGE_BALANCE_URL, GET_LINK_OWNER, TRANSACTION_URL, MY_LOGGER
 
 
 async def post_user_data(user_data):
@@ -103,10 +103,10 @@ async def post_for_create_payment(data):
     async with aiohttp.ClientSession() as session:
         async with session.post(url=PAYMENTS_URL, json=data) as response:
             if response.status == 200:
-                logger.success(f'Успешный запрос на создание в БД данных о платеже.')
+                MY_LOGGER.success(f'Успешный запрос на создание в БД данных о платеже.')
                 return await response.json()
             else:
-                logger.warning(f'Неудачный запрос для создания в БД данных о платеже.')
+                MY_LOGGER.warning(f'Неудачный запрос для создания в БД данных о платеже.')
                 return False
 
 
