@@ -80,10 +80,10 @@ AFTER_GET_TRANSACTIONS_KBRD = InlineKeyboardMarkup([
 
 
 PAY_METHODS_KBRD = InlineKeyboardMarkup([
-    [
-        # BUTTONS_DCT['QIWI_PAY_METHD'],
-        BUTTONS_DCT['CRYSTAL_PAY_METHD'],
-    ],
+    # [
+    #     # BUTTONS_DCT['QIWI_PAY_METHD'],
+    #     BUTTONS_DCT['CRYSTAL_PAY_METHD'],
+    # ],
     [
         BUTTONS_DCT['TO_CARD_PAY_METHD'],
     ],
