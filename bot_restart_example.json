@@ -1,0 +1,11 @@
+{
+  "TOKEN": "токен бота",
+  "CRYSTAL_PAY_LOGIN": "логин платёжной системы crystal pay",
+  "CRYSTAL_PAY_SECRET1": "ключ 1 платёжной системы crystal pay",
+  "CRYSTAL_PAY_SECRET2": "ключ 2 платёжной системы crystal pay",
+  "FEEDBACK_CHAT_URL":  "https://t.me/+someChat",
+  "redirect_bot_admin": ["ID Telegram админа 1", "ID Telegram админа 2"],
+  "support_username": "https://t.me/username",
+  "who_approves_payments": "ID Telegram пользователя, который будет принимать платежи",
+  "recovery_token": "токен для восстановления бота после сноса, лежит в админке"
+}
