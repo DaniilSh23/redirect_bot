@@ -19,7 +19,8 @@ bot_token = TOKEN
 
 async def main():
     async with Client("test_bot", api_id, api_hash, bot_token=bot_token) as app:
-        await app.send_message("me", "Запилили новый файл сессии")
+        rslt = await app.get_me()
+        print(f'Создали сессию и получили инфу о себе: {rslt!r}')
 
 
 asyncio.run(main())
