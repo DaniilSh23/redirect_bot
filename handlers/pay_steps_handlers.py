@@ -29,7 +29,7 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
 
     # Если данные о платеже есть в БД
     if payment_from_db != 404 and payment_from_db.get('tlg_id'):
-        payment_obj = UserPayments(   # Создаём объект класса UserPayments
+        payment_obj = UserPayments(  # Создаём объект класса UserPayments
             tlg_id=update.from_user.id,
             pay_system_type=payment_from_db.get("pay_system_type"),
             amount=payment_from_db.get("amount"),
@@ -47,15 +47,15 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
             reply_markup=WAITING_FOR_PAYMENT_KBRD
         )
 
-    else:   # Если активного счёта нет, то ведём на 1-й шаг оплаты
+    else:  # Если активного счёта нет, то ведём на 1-й шаг оплаты
         await update.answer(f'Выберите способ оплаты')
         await update.edit_message_text(
-            text=f'💳<b>Выберите способ оплаты</b>\n\n'
-                 # f'🌑 <b>Crystal Pay:</b>\n- Bitcoin\n- USDT TRC20\n- Банковская карта\n- Со счёта Crystal Pay\n\n❕
-                 # <b>Платежи зачисляются автоматически</b>\n'
-                 f'‼️<b>Оплата на банковскую карту минимально 500 РУБ.</b>'
-                 f'\n\n———————\n\n🌕 <b>Перевод на карту:</b>\n- Перевод на карту (РУБ.) с предоставлением скриншота\n\n'
-                 f'❗️<b>Платеж зачисляется в ручном режиме Администрацией</b>\n‼️<b>Оплата в любом размере в РУБ.</b>',
+            text=f'\n\n———————\n\n🌕 <b>Перевод на карту:</b>\n- Перевод на карту (РУБ.) с предоставлением скриншота\n\n'
+            f'❗️<b>Платеж зачисляется в ручном режиме Администрацией</b>\n‼️<b>Оплата в любом размере в РУБ.</b>',
+            # f'💳<b>Выберите способ оплаты</b>\n\n'
+            # f'🌑 <b>Crystal Pay:</b>\n- Bitcoin\n- USDT TRC20\n- Банковская карта\n- Со счёта Crystal Pay\n\n❕
+            # <b>Платежи зачисляются автоматически</b>\n'
+            # f'‼️<b>Оплата на банковскую карту минимально 500 РУБ.</b>'
             reply_markup=PAY_METHODS_KBRD
         )
 
@@ -208,7 +208,7 @@ async def cancel_payment_handler(client, update: CallbackQuery):
     """
     user_payment_obj = PAYMENTS_OBJ_DCT[update.from_user.id]
     delete_rslt = await req_for_get_payment(payment_for_dlt_id=user_payment_obj.bill_id)
-    if not delete_rslt:     # Если не удалось удалить
+    if not delete_rslt:  # Если не удалось удалить
         await update.edit_message_text(
             text=f'🚧<b>Не удалось отменить платёж.</b>\n\n'
                  f'Будем благодарны, если сообщите нам об этой проблеме. Так мы сможем быстрее всё починить',
@@ -277,12 +277,12 @@ async def pay_to_card_confirmation_handler(client, update: Message):
         text=f'👌Ваши средства будут зачислены сразу, после обработки платежа.',
         reply_markup=BACK_TO_HEAD_PAGE_KBRD
     )
-    STATES_STORAGE_DCT.pop(update.from_user.id)     # Очищаем стэйт
+    STATES_STORAGE_DCT.pop(update.from_user.id)  # Очищаем стэйт
 
     # Получаем ID того, кто подтверждает платежи
     who_approves_payments = await get_settings(key='who_approves_payments')
     if not who_approves_payments:
-        pass    # TODO: сделать обработку неудачного запроса
+        pass  # TODO: сделать обработку неудачного запроса
 
     who_approves_payments = who_approves_payments[0].get("value")
     await update.copy(
@@ -323,7 +323,7 @@ async def ask_amount_for_confirm_card_payment_handler(client, update: CallbackQu
              f' можно округлить его сумму в бОльшую сторону до очередного рубля</i>',
         reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
     )
-    STATES_STORAGE_DCT[update.from_user.id] = 'ask_card_replenish_amount'   # Устанавливаем стэйт для админа
+    STATES_STORAGE_DCT[update.from_user.id] = 'ask_card_replenish_amount'  # Устанавливаем стэйт для админа
     # Записываем tlg_id плательщика во временное хранилище
     TEMP_STORAGE_DCT[update.from_user.id] = {'payer_id': update.data.split()[1]}
 
@@ -355,7 +355,7 @@ async def confirm_card_payment_handler(client, update: Message):
         "tlg_id": payer_id,
         "description": "Пополнение баланса переводом на карту."
     })
-    if not response:    # Обработка неудачного запроса
+    if not response:  # Обработка неудачного запроса
         await update.reply_text(
             text=f'Не удалось выполнить запрос для изменения баланса юзера {payer_id} на +{update.text} руб.\n\n'
                  f'Рекомендую сейчас пополнить баланс юзерая вручную в админке и далее решать проблему.',
