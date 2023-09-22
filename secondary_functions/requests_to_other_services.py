@@ -1,16 +1,26 @@
 import aiohttp
 from loguru import logger
 
+from secondary_functions.req_to_bot_api import get_settings
+from settings.config import MY_LOGGER
+
 
 async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id, period='today'):
     """
     POST запрос к KEITARO для получения статистике по ID компании.
     """
+    keitaro_api_key = await get_settings(key='keitaro_api_key')
+    keitaro_main_domain = await get_settings(key='keitaro_main_domain')
+    if not keitaro_api_key or not keitaro_main_domain:
+        MY_LOGGER.warning(f'Не удалось получить из админки по API keitaro_api_key или keitaro_main_domain')
+        return False
+    keitaro_api_key = keitaro_api_key[0].get("value")
+    keitaro_main_domain = keitaro_main_domain[0].get("value")
 
     # TODO: изменил запрос под API Keitaro, если будут проблемы, то старые строки пока оставлю закоменченными
 
     # url = "http://45.9.40.104/admin/?bulk="
-    url = "http://212.8.244.17/admin_api/v1/report/build"
+    url = f"http://{keitaro_main_domain}/admin_api/v1/report/build"
 
     # payload = [
     #     # {
@@ -80,7 +90,7 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id, period='today'
 
     headers = {
         "Accept": "application/json",
-        "Api-Key": "75c0ed8290b1cfd6778c3c63c6db44e7",
+        "Api-Key": f"{keitaro_api_key}",
         "Content-Type": "application/json"
     }
 
