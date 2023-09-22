@@ -10,7 +10,7 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id, period='today'
     # TODO: изменил запрос под API Keitaro, если будут проблемы, то старые строки пока оставлю закоменченными
 
     # url = "http://45.9.40.104/admin/?bulk="
-    url = "http://45.9.40.104/admin_api/v1/report/build"
+    url = "http://212.8.244.17/admin_api/v1/report/build"
 
     # payload = [
     #     # {
@@ -80,7 +80,7 @@ async def post_req_to_keitaro_for_get_stat_by_comp_id(company_id, period='today'
 
     headers = {
         "Accept": "application/json",
-        "Api-Key": "b8a6a0ce74e6281ade804a1b3fae2fed",
+        "Api-Key": "75c0ed8290b1cfd6778c3c63c6db44e7",
         "Content-Type": "application/json"
     }
 
