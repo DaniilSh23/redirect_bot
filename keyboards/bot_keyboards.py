@@ -38,14 +38,19 @@ CHOOSE_SHORT_LINK_KBRD = InlineKeyboardMarkup([
         BUTTONS_DCT['custom_domain'],
     ],
     [
-        # BUTTONS_DCT['cutt.ly'],
-        # BUTTONS_DCT['cutt.us'],
         BUTTONS_DCT['clck.ru'],
-        BUTTONS_DCT['kortlink.dk'],
+        BUTTONS_DCT['haa.su'],
+    ],
+    [
+        BUTTONS_DCT['kurl.ru'],
+        BUTTONS_DCT['rebrandly.com'],
     ],
     # [
     #     BUTTONS_DCT['gg.gg'],
     #     BUTTONS_DCT['t9y.me'],
+    #     BUTTONS_DCT['cutt.ly'],
+    #     BUTTONS_DCT['cutt.us'],
+    #     BUTTONS_DCT['kortlink.dk'],
     # ],
 ])
 

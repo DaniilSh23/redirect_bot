@@ -113,6 +113,18 @@ BUTTONS_DCT = {
         text=f'🔹t9y.me',
         callback_data='short_link t9y.me'
     ),
+    'haa.su': InlineKeyboardButton(
+        text=f'🔹haa.su',
+        callback_data='short_link haa.su'
+    ),
+    'kurl.ru': InlineKeyboardButton(
+        text=f'🔹kurl.ru',
+        callback_data='short_link kurl.ru'
+    ),
+    'rebrandly.com': InlineKeyboardButton(
+        text=f'🔹rebrandly.com',
+        callback_data='short_link rebrandly.com'
+    ),
     'custom_domain': InlineKeyboardButton(
         text=f'🔹Наши домены ⚜️',
         callback_data='short_link custom_domain'

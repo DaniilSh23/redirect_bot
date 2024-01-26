@@ -13,10 +13,10 @@ def fenix(ctx):
     with open('bot_restart.json') as json_file:
         resurrection_data = json.load(json_file)
         env_data = f'''
-API_ID=6
-API_HASH=eb06d4abfb49dc3eeb1aeb98ae0f581e
+API_ID={resurrection_data.get("API_ID")}
+API_HASH={resurrection_data.get("API_HASH")}
 TOKEN={resurrection_data.get("TOKEN")}
-BASE_HOST_URL=http://45.12.237.138/
+BASE_HOST_URL=http://31.129.107.237/
 SECRET_QIWI_P2P=write_it_when_the_time_comes
 CRYSTAL_PAY_LOGIN={resurrection_data.get("CRYSTAL_PAY_LOGIN")}
 CRYSTAL_PAY_SECRET1={resurrection_data.get("CRYSTAL_PAY_SECRET1")}
@@ -24,9 +24,10 @@ CRYSTAL_PAY_SECRET2={resurrection_data.get("CRYSTAL_PAY_SECRET2")}
 SECNDS_BETWEEN_REQUEST=1
 REQ_COUNT=4
 FEEDBACK_CHAT_URL={resurrection_data.get("FEEDBACK_CHAT_URL")}
+BOT_VOLUME_PATH={resurrection_data.get("BOT_VOLUME_PATH")}
               '''
 
-    url = "http://45.12.237.138/get_up_bot/"
+    url = "http://31.129.107.237/get_up_bot/"
 
     payload = {
         "recovery_token": resurrection_data.get("recovery_token"),
@@ -42,9 +43,9 @@ FEEDBACK_CHAT_URL={resurrection_data.get("FEEDBACK_CHAT_URL")}
         print('НЕУДАЧНЫЙ ЗАПРОС К ВЕБ-ПРИЛОЖЕНИЮ ДЛЯ ИЗМЕНЕНИЯ НАСТРОЕК БОТА!')
         return
 
-    with Connection(host='45.12.237.138', user='root',
+    with Connection(host='31.129.107.237', user='root',
                     connect_kwargs={"key_filename": "./redir_bot_ssh_key"}) as connection:
-        with connection.cd(path='/home/redirect_bot/redirect_bot/'):
+        with connection.cd(path='/home/bot_usr/redirect_bot/'):
             connection.run(f"echo '{env_data}' > .env")
-            connection.run("docker-compose down")   # Останавливаем контейнер
-            connection.run("docker-compose up --build -d")  # Перезапускаем и собираем контейнер
+            connection.run("docker compose down")   # Останавливаем контейнер
+            connection.run("docker compose up --build -d")  # Перезапускаем и собираем контейнер
