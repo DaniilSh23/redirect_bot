@@ -43,7 +43,7 @@ CHOOSE_SHORT_LINK_KBRD = InlineKeyboardMarkup([
     ],
     [
         BUTTONS_DCT['kurl.ru'],
-        BUTTONS_DCT['rebrandly.com'],
+        # BUTTONS_DCT['rebrandly.com'],
     ],
     # [
     #     BUTTONS_DCT['gg.gg'],
