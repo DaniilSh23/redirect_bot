@@ -1,4 +1,3 @@
-import datetime
 import random
 import time
 
@@ -6,11 +5,11 @@ from loguru import logger
 from pyrogram import Client, filters
 from pyrogram.types import CallbackQuery, Message
 
-
 from filters.main_filters import filter_throttling_middleware, filter_for_cancel_and_clear_state, \
     filter_back_to_head_page
-from keyboards.bot_keyboards import ADMIN_KBRD, HEAD_PAGE_KBRD, form_head_page_keyboard
-from secondary_functions.req_to_bot_api import post_user_data, get_settings
+from keyboards.bot_keyboards import ADMIN_KBRD, form_head_page_keyboard
+from resources.messages import MESSAGES
+from secondary_functions.req_to_bot_api import post_user_data, get_settings, get_interface_language
 from settings.config import BLACK_LIST, STATES_STORAGE_DCT
 
 
@@ -90,14 +89,21 @@ async def start_handler(client, update: Message):
                 break
 
     # Запрашиваем тариф бота на редиректы
-    response = await get_settings(key='tariff')
+    tariff_response = await get_settings(key='tariff')
+
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.reply_text(text="🛠 Sorry...The bot has problems with translation. Please try again later, "
+                                            "we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
 
     # Даём ответ пользователю
+    msg_text = MESSAGES[f"START_HANDLER_MESSAGE_{language_code}"].format(
+        tariff_response=tariff_response[0].get("value"))
     await update.reply_text(
-        text='🤝Здравствуйте.\n🎁Этот бот поможет <b>обернуть Ваши ссылки</b> для редиректа.\n\n'
-             f'🪙<b>Стоимость</b> одного редиректа для ссылки: <b>{response[0].get("value")} руб.</b>\n\n'
-             'Нажимайте на кнопку <b>🔗СОЗДАТЬ ССЫЛКУ</b> и приступим.',
-        reply_markup=await form_head_page_keyboard()
+        text=msg_text,
+        reply_markup=await form_head_page_keyboard(language_code=language_code),
     )
 
 
@@ -112,13 +118,21 @@ async def cancel_and_clear_state_handler(client, update: CallbackQuery):
     if STATES_STORAGE_DCT.get(update.from_user.id):
         STATES_STORAGE_DCT.pop(update.from_user.id)
 
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
+    # TODO: нужно допилить перевод текстов
     await update.answer(
         text=f'Нажата кнопка ❌Отменить.\nВозврат к главному меню.',
         show_alert=True
     )
     await update.edit_message_text(
         text='<b>Главное меню</b>',
-        reply_markup=await form_head_page_keyboard()
+        reply_markup=await form_head_page_keyboard(language_code=language_code),
     )
 
 
@@ -131,13 +145,20 @@ async def back_to_head_page_handler(client, update: CallbackQuery):
     if STATES_STORAGE_DCT.get(update.from_user.id):
         STATES_STORAGE_DCT.pop(update.from_user.id)
 
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     await update.answer(
         text=f'Возврат к главному меню.',
         show_alert=True
     )
     await update.edit_message_text(
         text='<b>Главное меню</b>',
-        reply_markup=await form_head_page_keyboard()
+        reply_markup=await form_head_page_keyboard(language_code=language_code),
     )
 
 
@@ -150,7 +171,14 @@ async def send_menu(client, update: Message):
     if STATES_STORAGE_DCT.get(update.from_user.id):
         STATES_STORAGE_DCT.pop(update.from_user.id)
 
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.reply_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                            " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     await update.reply_text(
         text='<b>Главное меню</b>',
-        reply_markup=await form_head_page_keyboard()
+        reply_markup=await form_head_page_keyboard(language_code=language_code),
     )

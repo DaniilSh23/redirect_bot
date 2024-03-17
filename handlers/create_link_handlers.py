@@ -11,9 +11,10 @@ from bot_objects.links_obj import RedirectLinks
 from filters.create_link_filters import filter_for_create_link_btn_handler, filter_for_get_doc_with_links_handler, \
     filter_for_waiting_file_processing_handler, filter_minus_redirect_handler, filter_plus_redirect_handler, \
     filter_link_shortening_handler, filter_processing_links_handler
-from keyboards.bot_keyboards import CANCEL_AND_CLEAR_STATE_KBRD, choose_numb_of_redirect_kbrd, CHOOSE_SHORT_LINK_KBRD, \
-    BACK_TO_HEAD_PAGE_KBRD, MY_BALANCE_PART_KBRD
-from secondary_functions.req_to_bot_api import update_or_create_link, get_settings, get_user_data
+from keyboards.bot_keyboards import (choose_numb_of_redirect_kbrd, back_to_headpage_keyboard,
+                                     cancel_and_clear_state_keyboard, my_balance_part_keyboard,
+                                     choose_short_link_keyboard)
+from secondary_functions.req_to_bot_api import get_settings, get_user_data, get_interface_language
 from settings.config import STATES_STORAGE_DCT, LINKS_OBJ_DCT
 
 
@@ -24,17 +25,25 @@ async def create_link_btn_handler(client, update):
     Устанавливаем состояние, в котором ожидаем получить файл со ссылками,
     запрашиваем сам файл и даём кнопку "Отменить".
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.reply_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                            " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     # Получаем баланс юзера и тариф из БД
     user_balance = await get_user_data(tlg_id=update.from_user.id)
     user_balance = Decimal(user_balance.get('balance'))
     tariff = await get_settings(key='tariff')
     tariff = Decimal(tariff[0].get('value'))
+
     # Если баланс меньше тарифа
     if tariff > user_balance:
-        await update.edit_message_text(     # Предлагаем пополнить счёт
+        await update.edit_message_text(  # Предлагаем пополнить счёт
             text=f"❗️Недостаточно средств для создания ссылок.\n💰<b>Ваш баланс: {user_balance} руб.</b>\n"
                  f"🪙<b>Цена одного редиректа для ссылки: {tariff} руб.</b>",
-            reply_markup=MY_BALANCE_PART_KBRD
+            reply_markup=await my_balance_part_keyboard(language_code)
         )
         return
 
@@ -49,7 +58,7 @@ async def create_link_btn_handler(client, update):
              f"🔹 каждая ссылка с новой строки;\n"
              f"🔹 ссылки должны начинаться с <code>http://</code> <code>https://</code> <code>ftp://</code> и т.п.;\n"
              f"🔹 <b>невалидные ссылки не будут прочитаны.</b>",
-        reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+        reply_markup=await cancel_and_clear_state_keyboard(language_code)
     )
 
 
@@ -61,6 +70,13 @@ async def get_doc_with_links_handler(client, update: Message):
     Скачиваем документ из телеги, читаем его.
     Итерируемся по строкам, проверяем ссылки на валидность, записываем в БД.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.reply_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                            " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     await update.reply_text(
         text=f'🖍Обрабатываю Ваш документ.\n\n'
              f'⏳Это может занять некоторое время, если в документе много ссылок.\n'
@@ -84,7 +100,7 @@ async def get_doc_with_links_handler(client, update: Message):
 
             # проверка, что строка в файле - это ссылка
             is_link = False
-            i_line = i_line.replace('\ufeff', '')   # Устраняем BOM символ, если он будет
+            i_line = i_line.replace('\ufeff', '')  # Устраняем BOM символ, если он будет
             parsed_lnk = urlparse(i_line)
             logger.debug(f'Разбираемся ссылку на детали : {i_line}')
             if parsed_lnk.scheme and parsed_lnk.netloc and '.' in parsed_lnk.netloc:
@@ -102,13 +118,7 @@ async def get_doc_with_links_handler(client, update: Message):
                     links = ' '.join([links, i_line])
                 valid_links_count += 1
 
-                # # Записываем ссылку в БД через запрос API
-                # write_link_rslt = await update_or_create_link(data={
-                #     'tlg_id': update.from_user.id,
-                #     'link': i_line
-                # })
-
-    STATES_STORAGE_DCT.pop(update.from_user.id)     # Очищаем стэйт ожидания обработки файла
+    STATES_STORAGE_DCT.pop(update.from_user.id)  # Очищаем стэйт ожидания обработки файла
 
     tariff = await get_settings(key='tariff')  # Получаем цену тарифа в БД
     user_data = await get_user_data(tlg_id=update.from_user.id)  # Получаем данные об юзере (нужен баланс)
@@ -131,7 +141,7 @@ async def get_doc_with_links_handler(client, update: Message):
             text=f"❗️<b>Недостаточно средств.</b>\n\n💰Ваш баланс: <b>{links_obj.balance} руб.</b>\n"
                  f"🧾Общая стоимость одного редиректа для {len(links.split(' '))} ссылок: "
                  f"<b>{links_obj.total_price} руб.</b>\n\nПожалуйста, пополните баланс.",
-            reply_markup=MY_BALANCE_PART_KBRD
+            reply_markup=await my_balance_part_keyboard(language_code)
         )
         return
 
@@ -143,7 +153,7 @@ async def get_doc_with_links_handler(client, update: Message):
              f'💰Баланс: <b>{links_obj.balance} руб.</b>\n'
              f'🧾Общая стоимость: <b>{links_obj.total_price} руб.</b>\n\n'
              f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?',
-        reply_markup=await choose_numb_of_redirect_kbrd()
+        reply_markup=await choose_numb_of_redirect_kbrd(language_code)
     )
 
 
@@ -152,6 +162,13 @@ async def minus_redirect_handler(client, update: CallbackQuery):
     """
     Хэндлер для кнопок 'минус редирект(ы)'
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     links_obj = LINKS_OBJ_DCT[update.from_user.id]  # Достаём из словаря объект класса
     # Уменьшяем кол-во редиректов
     links_obj.redirect_numb -= float(update.data.split()[1])
@@ -169,6 +186,7 @@ async def minus_redirect_handler(client, update: CallbackQuery):
                            f'🧾Общая стоимость: <b>{links_obj.total_price} руб.</b>\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
+            language_code=language_code,
             redirect_numb=str(links_obj.redirect_numb),
             replenish_balance=False
         )
@@ -183,6 +201,7 @@ async def minus_redirect_handler(client, update: CallbackQuery):
                            f'🧾Общая стоимость: {links_obj.total_price} руб.\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
+            language_code=language_code,
             redirect_numb=str(int(links_obj.redirect_numb)),
             replenish_balance=False
         )
@@ -197,6 +216,13 @@ async def plus_redirect_handler(client, update: CallbackQuery):
     """
     Хэндлер для кнопок 'плюс редирект(ы)'.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     links_obj = LINKS_OBJ_DCT[update.from_user.id]  # Достаём из словаря объект класса
     # Увеличиваем кол-во редиректов
     links_obj.redirect_numb += float(update.data.split()[1])
@@ -222,6 +248,7 @@ async def plus_redirect_handler(client, update: CallbackQuery):
                            f'🧾Общая стоимость: <b>{links_obj.total_price} руб.</b>\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
+            language_code=language_code,
             redirect_numb=str(int(links_obj.redirect_numb)),
             replenish_balance=True
         )
@@ -236,6 +263,7 @@ async def plus_redirect_handler(client, update: CallbackQuery):
                            f'🧾Общая стоимость: {links_obj.total_price} руб.\n\n' \
                            f'🔀Выберите <b>сколько</b> делать <b>редиректов</b> для каждой ссылки?'
         inline_kbrd = await choose_numb_of_redirect_kbrd(
+            language_code=language_code,
             redirect_numb=str(int(links_obj.redirect_numb)),
             replenish_balance=False
         )
@@ -252,8 +280,13 @@ async def choosing_link_shortening_service_handler(client, update: CallbackQuery
     Попадаем сюда после нажатия кнопки с callback_data='to_link_shortening'.
     Отдаём клавиатуру со списком сервисов для сокращения ссылок.
     """
-    # await update.answer(f'❗️Пожалуйста, обратите внимание: в последнее время сервис cutt.us долго прогружает ссылки.\n'
-    #                     f'‼️Поэтому просим учитывать данный факт при его выборе.', show_alert=True)
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     await update.answer(f'🔗Выбор сервиса для сокращения ссылок')
     await update.edit_message_text(
         text=f'🔗Пожалуйста, выберите <b>сервис для сокращения ссылок</b>.\n\n'
@@ -262,7 +295,7 @@ async def choosing_link_shortening_service_handler(client, update: CallbackQuery
              f'🔹 сlck.ru - мгновенный переход\n'
              f'🔹 kurl.ru - мгновенный переход\n'
              f'🔹 haa.su - переход в теч. 3 сек.',
-        reply_markup=CHOOSE_SHORT_LINK_KBRD
+        reply_markup=await choose_short_link_keyboard(language_code)
     )
 
 
@@ -272,13 +305,20 @@ async def processing_links_for_redirect_handler(client, update: CallbackQuery):
     Хэндлер, в котором мы непосредственно осуществляем процесс обработки каждой ссылки для обёртки их в редирект.
     Как итог работы отправляем файл, в котором будут указаны ссылки с их редиректом и ID компании(для сбора статистики)
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     links_obj = LINKS_OBJ_DCT[update.from_user.id]  # Достаём из словаря объект класса
     links_obj.short_link_service = update.data.split()[1]
     await update.edit_message_text(
         text=f'🆗Окей.\n'
              f'🎁Начинаю оборачивать Ваши ссылки в редирект.\n'
              f'🧘‍♀️Ожидайте, я пришлю Вам файл с результатами📄, когда всё будет готово.',
-        reply_markup=BACK_TO_HEAD_PAGE_KBRD
+        reply_markup=await back_to_headpage_keyboard(language_code=language_code)
     )
     err_flag = False
     # Создаём в БД набор для ссылок
@@ -289,7 +329,7 @@ async def processing_links_for_redirect_handler(client, update: CallbackQuery):
         if not result:  # Неудачный запрос для создания ссылок
             logger.error(f'Неудачный запрос для создания в БД ссылок. TG_ID=={update.from_user.id}')
             err_flag = True
-    else:   # Неудачный запрос для создания набора ссылок
+    else:  # Неудачный запрос для создания набора ссылок
         logger.error(f'Неудачный запрос для создания в БД набора ссылок. TG_ID=={update.from_user.id}')
         err_flag = True
 
@@ -298,11 +338,11 @@ async def processing_links_for_redirect_handler(client, update: CallbackQuery):
         logger.error(f'Неудачный запрос старта задачи по обёртки ссылок. TG_ID=={update.from_user.id}')
         err_flag = True
 
-    if err_flag:    # Отправляем уведомление о неисправности бота
+    if err_flag:  # Отправляем уведомление о неисправности бота
         await update.edit_message_text(
             text=f'🔧<b>Техническая неисправность бота.</b>\n'
                  f'Пожалуйста, сообщите нам через раздел поддержки, чтобы мы могли оперативно устранить проблему.',
-            reply_markup=BACK_TO_HEAD_PAGE_KBRD
+            reply_markup=await back_to_headpage_keyboard(language_code=language_code)
         )
 
 

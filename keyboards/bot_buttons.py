@@ -9,44 +9,84 @@ BUTTONS_DCT = {
     ),
 
     # Главное меню
-    'CREATE_LINK': InlineKeyboardButton(
+    'CREATE_LINK_rus': InlineKeyboardButton(
         text=f'🔗СОЗДАТЬ ССЫЛКУ',
         callback_data='create_link'
     ),
-    'GET_STATISTIC': InlineKeyboardButton(
+    'CREATE_LINK_eng': InlineKeyboardButton(
+        text=f'🔗CREATE LINK',
+        callback_data='create_link'
+    ),
+    'GET_STATISTIC_rus': InlineKeyboardButton(
         text=f'📊СТАТИСТИКА',
         callback_data='get_statistic'
     ),
-    'FAQ': InlineKeyboardButton(
+    'GET_STATISTIC_eng': InlineKeyboardButton(
+        text=f'📊STATISTICS',
+        callback_data='get_statistic'
+    ),
+    'FAQ_rus': InlineKeyboardButton(
         text=f'❓ПРАВИЛА/FAQ',
         callback_data='faq_btn'
     ),
-    'SUPPORT': InlineKeyboardButton(
+    'FAQ_eng': InlineKeyboardButton(
+        text=f'❓RULES/FAQ',
+        callback_data='faq_btn'
+    ),
+    'SUPPORT_rus': InlineKeyboardButton(
         text=f'👷‍♂️ПОДДЕРЖКА',
         callback_data='support_btn'
     ),
-    'MY_BALANCE': InlineKeyboardButton(
+    'SUPPORT_eng': InlineKeyboardButton(
+        text=f'👷‍♂️SUPPORT',
+        callback_data='support_btn'
+    ),
+    'MY_BALANCE_rus': InlineKeyboardButton(
         text=f'💰МОЙ БАЛАНС',
         callback_data='my_balance'
     ),
-    'REPLENISH_BALANCE': InlineKeyboardButton(
+    'MY_BALANCE_eng': InlineKeyboardButton(
+        text=f'💰MY BALANCE',
+        callback_data='my_balance'
+    ),
+    'REPLENISH_BALANCE_rus': InlineKeyboardButton(
         text=f'💸ПОПОЛНИТЬ БАЛАНС',
         callback_data='replenish_balance'
     ),
-    'TRANSACTIONS_STORY': InlineKeyboardButton(
+    'REPLENISH_BALANCE_eng': InlineKeyboardButton(
+        text=f'💸TOP UP',
+        callback_data='replenish_balance'
+    ),
+    'TRANSACTIONS_STORY_rus': InlineKeyboardButton(
         text=f'🧾ИСТОРИЯ ОПЕРАЦИЙ',
         callback_data='transactions_story'
     ),
-    'CANCEL_AND_CLEAR_STATE': InlineKeyboardButton(
+    'TRANSACTIONS_STORY_eng': InlineKeyboardButton(
+        text=f'🧾TRANSACTION HISTORY',
+        callback_data='transactions_story'
+    ),
+    'CANCEL_AND_CLEAR_STATE_rus': InlineKeyboardButton(
         text=f'❌Отменить',
         callback_data='cancel_and_clear_state'
     ),
-    'BACK_TO_HEAD_PAGE': InlineKeyboardButton(
+    'CANCEL_AND_CLEAR_STATE_eng': InlineKeyboardButton(
+        text=f'❌Cancel',
+        callback_data='cancel_and_clear_state'
+    ),
+    'BACK_TO_HEAD_PAGE_rus': InlineKeyboardButton(
         text=f'🔙На главную',
         callback_data='back_to_head_page'
     ),
-    'FEEDBACK_CHAT': InlineKeyboardButton(
+    'BACK_TO_HEAD_PAGE_eng': InlineKeyboardButton(
+        text=f'🔙HOME',
+        callback_data='back_to_head_page'
+    ),
+    'FEEDBACK_CHAT_rus': InlineKeyboardButton(
         text=f'🌟ОТЗЫВЫ',
+        url=FEEDBACK_CHAT_URL
+    ),
+    'FEEDBACK_CHAT_eng': InlineKeyboardButton(
+        text=f'🌟REVIEWS',
         url=FEEDBACK_CHAT_URL
     ),
 
@@ -83,8 +123,12 @@ BUTTONS_DCT = {
         text=f'➕1000',
         callback_data='plus_redirect 1000'
     ),
-    'TO_LINK_SHORTENING': InlineKeyboardButton(
+    'TO_LINK_SHORTENING_rus': InlineKeyboardButton(
         text=f'След.шаг➡️',
+        callback_data='to_link_shortening'
+    ),
+    'TO_LINK_SHORTENING_eng': InlineKeyboardButton(
+        text=f'Next step➡️',
         callback_data='to_link_shortening'
     ),
 
@@ -125,14 +169,22 @@ BUTTONS_DCT = {
         text=f'🔹rebrandly.com',
         callback_data='short_link rebrandly.com'
     ),
-    'custom_domain': InlineKeyboardButton(
+    'custom_domain_rus': InlineKeyboardButton(
         text=f'🔹Наши домены ⚜️',
+        callback_data='short_link custom_domain'
+    ),
+    'custom_domain_eng': InlineKeyboardButton(
+        text=f'🔹OUR DOMAINS ⚜️',
         callback_data='short_link custom_domain'
     ),
 
     # Кнопка для раздела статистики
-    'CHECK_MORE': InlineKeyboardButton(
+    'CHECK_MORE_rus': InlineKeyboardButton(
         text='🔂Проверить ещё',
+        callback_data='get_statistic'
+    ),
+    'CHECK_MORE_eng': InlineKeyboardButton(
+        text='🔂Check more',
         callback_data='get_statistic'
     ),
 
@@ -145,20 +197,44 @@ BUTTONS_DCT = {
         text='🌑 Crystal Pay',
         callback_data='pay_method crystal',
     ),
-    'TO_CARD_PAY_METHD': InlineKeyboardButton(
+    'TO_CARD_PAY_METHD_rus': InlineKeyboardButton(
         text='🌕 Перевод на карту',
         callback_data='pay_to_card',
     ),
-    'CONFIRM_PAYMENT': InlineKeyboardButton(
+    'TO_CARD_PAY_METHD_eng': InlineKeyboardButton(
+        text='🌕 Transfer to card',
+        callback_data='pay_to_card',
+    ),
+    'CONFIRM_PAYMENT_rus': InlineKeyboardButton(
         text='✅Подтвердить оплату',
         callback_data='confirm_payment',
     ),
-    'CANCEL_PAYMENT': InlineKeyboardButton(
+    'CONFIRM_PAYMENT_eng': InlineKeyboardButton(
+        text='✅Confirm Payment',
+        callback_data='confirm_payment',
+    ),
+    'CANCEL_PAYMENT_rus': InlineKeyboardButton(
         text='❌Отменить оплату',
         callback_data='cancel_payment',
     ),
-    'I_PAYD_TO_CARD': InlineKeyboardButton(
+    'CANCEL_PAYMENT_eng': InlineKeyboardButton(
+        text='❌Cancel Payment',
+        callback_data='cancel_payment',
+    ),
+    'I_PAYD_TO_CARD_rus': InlineKeyboardButton(
         text='✅Я перевёл',
         callback_data='i_payd_to_card',
     ),
+    'I_PAYD_TO_CARD_eng': InlineKeyboardButton(
+        text='✅I PAID',
+        callback_data='i_payd_to_card',
+    ),
+    'CHANGE_LANG_rus': InlineKeyboardButton(
+        text='🔤 Сменить язык',
+        callback_data='change_lang',
+    ),
+    'CHANGE_LANG_eng': InlineKeyboardButton(
+        text='🔤 Change the language',
+        callback_data='change_lang',
+    )
 }

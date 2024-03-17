@@ -1,7 +1,8 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from keyboards.bot_buttons import BUTTONS_DCT
-from secondary_functions.req_to_bot_api import get_settings
+from secondary_functions.req_to_bot_api import get_interface_language
+from secondary_functions.utils import make_feedback_link
 
 ADMIN_KBRD = InlineKeyboardMarkup([
     [
@@ -9,119 +10,158 @@ ADMIN_KBRD = InlineKeyboardMarkup([
     ],
 ])
 
-HEAD_PAGE_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['CREATE_LINK'],
-        BUTTONS_DCT['GET_STATISTIC'],
-    ],
-    [
-        BUTTONS_DCT['FAQ'],
-        BUTTONS_DCT['SUPPORT'],
-    ],
-    [
-        BUTTONS_DCT['MY_BALANCE'],
-        BUTTONS_DCT['REPLENISH_BALANCE'],
-    ],
-    [
-        BUTTONS_DCT['FEEDBACK_CHAT'],
-    ]
-])
 
-CANCEL_AND_CLEAR_STATE_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['CANCEL_AND_CLEAR_STATE'],
-    ],
-])
-
-CHOOSE_SHORT_LINK_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['custom_domain'],
-    ],
-    [
-        BUTTONS_DCT['clck.ru'],
-        BUTTONS_DCT['haa.su'],
-    ],
-    [
-        BUTTONS_DCT['kurl.ru'],
-        # BUTTONS_DCT['rebrandly.com'],
-    ],
-    # [
-    #     BUTTONS_DCT['gg.gg'],
-    #     BUTTONS_DCT['t9y.me'],
-    #     BUTTONS_DCT['cutt.ly'],
-    #     BUTTONS_DCT['cutt.us'],
-    #     BUTTONS_DCT['kortlink.dk'],
-    # ],
-])
-
-BACK_TO_HEAD_PAGE_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
-    ],
-])
+# HEAD_PAGE_KBRD = InlineKeyboardMarkup([
+#     [
+#         BUTTONS_DCT['CREATE_LINK'],
+#         BUTTONS_DCT['GET_STATISTIC'],
+#     ],
+#     [
+#         BUTTONS_DCT['FAQ'],
+#         BUTTONS_DCT['SUPPORT'],
+#     ],
+#     [
+#         BUTTONS_DCT['MY_BALANCE'],
+#         BUTTONS_DCT['REPLENISH_BALANCE'],
+#     ],
+#     [
+#         BUTTONS_DCT['FEEDBACK_CHAT'],
+#     ],
+#     [
+#         BUTTONS_DCT['CHANGE_LANG'],
+#     ],
+# ])
 
 
-MY_BALANCE_PART_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['REPLENISH_BALANCE'],
-    ],
-    [
-        BUTTONS_DCT['TRANSACTIONS_STORY'],
-    ],
-    [
-        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
-    ],
-])
+async def cancel_and_clear_state_keyboard(language_code):
+    """
+    Функция для создания клавиатуры с кнопкой отмены и очистки состояний.
+    """
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT[f'CANCEL_AND_CLEAR_STATE_{language_code}'],
+        ],
+    ])
 
 
-AFTER_GET_TRANSACTIONS_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['REPLENISH_BALANCE'],
-    ],
-    [
-        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
-    ],
-])
+async def choose_short_link_keyboard(language_code):
+    """
+    Клавиатура для выбора сервиса сокращения ссылок.
+    """
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT[f'custom_domain_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT['clck.ru'],
+            BUTTONS_DCT['haa.su'],
+        ],
+        [
+            BUTTONS_DCT['kurl.ru'],
+            # BUTTONS_DCT['rebrandly.com'],
+        ],
+        # [
+        #     BUTTONS_DCT['gg.gg'],
+        #     BUTTONS_DCT['t9y.me'],
+        #     BUTTONS_DCT['cutt.ly'],
+        #     BUTTONS_DCT['cutt.us'],
+        #     BUTTONS_DCT['kortlink.dk'],
+        # ],
+    ])
 
 
-PAY_METHODS_KBRD = InlineKeyboardMarkup([
-    # [
-    #     # BUTTONS_DCT['QIWI_PAY_METHD'],
-    #     BUTTONS_DCT['CRYSTAL_PAY_METHD'],
-    # ],
-    [
-        BUTTONS_DCT['TO_CARD_PAY_METHD'],
-    ],
-    [
-        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
-    ],
-])
+async def back_to_headpage_keyboard(language_code):
+    """
+    Клавиатура с кнопкой возврата к главному меню.
+    """
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}'],
+        ],
+    ])
 
 
-WAITING_FOR_PAYMENT_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['CONFIRM_PAYMENT'],
-    ],
-    [
-        BUTTONS_DCT['CANCEL_PAYMENT'],
-    ],
-    [
-        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
-    ],
-])
+async def my_balance_part_keyboard(language_code):
+    """
+    Клавиатура для раздела меню "Мой баланс".
+    """
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT[f'REPLENISH_BALANCE_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT[f'TRANSACTIONS_STORY_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}'],
+        ],
+    ])
 
 
-PAY_TO_CARD_KBRD = InlineKeyboardMarkup([
-    [
-        BUTTONS_DCT['I_PAYD_TO_CARD'],
-    ],
-    [
-        BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
-    ],
-])
+async def after_get_transaction_keyboard(language_code):
+    """
+    Клавиатура для раздела, который открывается после нажатия кнопки получения списка своих транзакций.
+    """
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT[f'REPLENISH_BALANCE_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}'],
+        ],
+    ])
 
 
-async def statistic_keyboard(company_id):
+async def pay_methods_keyboard(language_code):
+    """
+    Клавиатура для выбора метода оплаты.
+    """
+    return InlineKeyboardMarkup([
+        # [
+        #     # BUTTONS_DCT['QIWI_PAY_METHD'],
+        #     BUTTONS_DCT['CRYSTAL_PAY_METHD'],
+        # ],
+        [
+            BUTTONS_DCT[f'TO_CARD_PAY_METHD_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}'],
+        ],
+    ])
+
+
+async def waiting_for_payment_keyboard(language_code):
+    """
+    Клавиатура для ожидания выполнения и подтверждения платежа. Используется при ручном переводе на карту.
+    """
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT[f'CONFIRM_PAYMENT_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT[f'CANCEL_PAYMENT_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}'],
+        ],
+    ])
+
+
+async def pay_to_card_keyboard(language_code):
+    """
+    Клавиатура для оплаты переводом на карту.
+    """
+    return InlineKeyboardMarkup([
+        [
+            BUTTONS_DCT[f'I_PAYD_TO_CARD_{language_code}'],
+        ],
+        [
+            BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}'],
+        ],
+    ])
+
+
+async def statistic_keyboard(company_id, language_code):
     """
     Клавиатура в разделе статистики.
     Записываем в колбэк кнопок по выбору периода company_id
@@ -178,22 +218,22 @@ async def statistic_keyboard(company_id):
             ),
         ],
         [
-            BUTTONS_DCT['CHECK_MORE'],
+            BUTTONS_DCT[f'CHECK_MORE_{language_code}'],
         ],
         [
-            BUTTONS_DCT['BACK_TO_HEAD_PAGE'],
+            BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}'],
         ],
     ])
 
 
-async def choose_numb_of_redirect_kbrd(redirect_numb='1', replenish_balance=False):
+async def choose_numb_of_redirect_kbrd(language_code, redirect_numb='1', replenish_balance=False):
     """
     Клавиатурка для выбора кол-ва редиректов
     """
     inline_kbrd_lst = [
         [
             BUTTONS_DCT['MINUS_REDIRECT'],
-            InlineKeyboardButton(   # Кол-во редиректов, как кнопка
+            InlineKeyboardButton(  # Кол-во редиректов, как кнопка
                 text=redirect_numb,
                 callback_data='plug',
             ),
@@ -212,13 +252,13 @@ async def choose_numb_of_redirect_kbrd(redirect_numb='1', replenish_balance=Fals
             BUTTONS_DCT['PLUS_1000_REDIRECT'],
         ],
         [
-            BUTTONS_DCT['CANCEL_AND_CLEAR_STATE'],
-            BUTTONS_DCT['TO_LINK_SHORTENING'],
+            BUTTONS_DCT[f'CANCEL_AND_CLEAR_STATE_{language_code}'],
+            BUTTONS_DCT[f'TO_LINK_SHORTENING_{language_code}'],
         ]
     ]
     if replenish_balance:
         inline_kbrd_lst.append([
-            BUTTONS_DCT['REPLENISH_BALANCE'],
+            BUTTONS_DCT[f'REPLENISH_BALANCE_{language_code}'],
         ])
     return InlineKeyboardMarkup(inline_keyboard=inline_kbrd_lst)
 
@@ -256,29 +296,52 @@ async def card_payment_processing_kbrd(tlg_id):
     ])
 
 
-async def form_head_page_keyboard():
+async def form_head_page_keyboard(language_code):
     """
     Формируем клавиатуру для главной странице.
     (Эта функция нужна, чтобы подтягивать из БД ссылку на канал с отзывами)
     """
-    feedback_channel_link = await get_settings(key='feedback_link')
+    # Собираем кнопку "ОТЗЫВЫ" (устанавливаем ей актуальную ссылку)
+    feed_back_button = BUTTONS_DCT[f"FEEDBACK_CHAT_{language_code}"]
+    feed_back_button.url = await make_feedback_link()
+
     return InlineKeyboardMarkup([
         [
-            BUTTONS_DCT['CREATE_LINK'],
-            BUTTONS_DCT['GET_STATISTIC'],
+            BUTTONS_DCT[f'CREATE_LINK_{language_code}'],
+            BUTTONS_DCT[f'GET_STATISTIC_{language_code}'],
         ],
         [
-            BUTTONS_DCT['FAQ'],
-            BUTTONS_DCT['SUPPORT'],
+            BUTTONS_DCT[f'FAQ_{language_code}'],
+            BUTTONS_DCT[f'SUPPORT_{language_code}'],
         ],
         [
-            BUTTONS_DCT['MY_BALANCE'],
-            BUTTONS_DCT['REPLENISH_BALANCE'],
+            BUTTONS_DCT[f'MY_BALANCE_{language_code}'],
+            BUTTONS_DCT[f'REPLENISH_BALANCE_{language_code}'],
         ],
         [
-            InlineKeyboardButton(
-                text=f'🌟ОТЗЫВЫ',
-                url=feedback_channel_link[0].get('value')
-            )
-        ]
+            feed_back_button,
+        ],
+        [
+            BUTTONS_DCT[f'CHANGE_LANG_{language_code}'],
+        ],
     ])
+
+
+async def languages_keyboard(language_code):
+    """
+    Клавиатура для выбора языка интерфейса.
+    """
+    # Получаем список доступных языков интерфейса
+    languages = await get_interface_language()
+
+    # Формируем общий список, который в последствии станет клавиатурой
+    keyboard_lst = []
+    for i_lang in languages:
+        keyboard_lst.append([InlineKeyboardButton(
+            text=i_lang.get("language"),
+            callback_data=f'set_lang {i_lang.get("language_code")}',
+        )])
+    keyboard_lst.append([BUTTONS_DCT[f'BACK_TO_HEAD_PAGE_{language_code}']])
+
+    # Скармливаем список классу, который сделает из него клавиатуру
+    return InlineKeyboardMarkup(keyboard_lst)

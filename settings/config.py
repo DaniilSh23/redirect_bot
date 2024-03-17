@@ -10,7 +10,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Данные Telegram
-TOKEN = os.environ.get('TOKEN', '5265303938:AAE1daGp-VJR0R15J9tHksR38hQlbCXMYdU')
+TOKEN = os.environ.get('TOKEN', 'токен бота')
 API_ID = os.environ.get('API_ID', '1234567890')
 API_HASH = os.environ.get('API_HASH', 'какой-то там хэш')
 FEEDBACK_CHAT_URL = os.environ.get('FEEDBACK_CHAT_URL', 'https://t.me/longi_gr')
@@ -32,6 +32,7 @@ PAYMENTS_URL = f'{BASE_HOST_URL}payments/'
 CHANGE_BALANCE_URL = f'{BASE_HOST_URL}change_balance/'
 GET_LINK_OWNER = f'{BASE_HOST_URL}get_link_owner/'
 TRANSACTION_URL = f'{BASE_HOST_URL}transaction/'
+INTERFACE_LANG_URL = f'{BASE_HOST_URL}interface_lang/'
 
 # Настройки для throttling middleware
 SECNDS_BETWEEN_REQUEST = float(os.environ.get('SECNDS_BETWEEN_REQUEST', '0'))     # Секунды между запросами

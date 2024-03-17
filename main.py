@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
         logger.info('LAUNCH THIS FU... BOT NOW!!!')
         Client("test_bot", plugins=plugins).run()
-    except Exception as error:
-        logger.error(f'BOT CRASHED WITH SOME ERROR\n\t{error}')
+    # except Exception as error:
+    #     logger.error(f'BOT CRASHED WITH SOME ERROR\n\t{error}')
     except (KeyboardInterrupt, SystemExit):
         logger.warning('BOT STOPPED BY CTRL+C!')

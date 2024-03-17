@@ -3,7 +3,7 @@ import json
 import aiohttp as aiohttp
 from loguru import logger
 from settings.config import USER_DATA_URL, GET_BOT_ADMINS_URL, LINKS_URL, LINK_SET_URL, START_WRAPPING_URL, \
-    PAYMENTS_URL, CHANGE_BALANCE_URL, GET_LINK_OWNER, TRANSACTION_URL, MY_LOGGER
+    PAYMENTS_URL, CHANGE_BALANCE_URL, GET_LINK_OWNER, TRANSACTION_URL, MY_LOGGER, INTERFACE_LANG_URL, TOKEN
 
 
 async def post_user_data(user_data):
@@ -189,4 +189,40 @@ async def get_transactions(tlg_id):
                 return True
             else:
                 logger.warning(f'Неудачный запрос для создания транзакции.')
+                return False
+
+
+async def get_interface_language(tlg_id=None):
+    """
+    Получение языков интерфейса. Если указан tlg_id, то вернется язык интерфейса для данного пользователя.
+    """
+    req_url = INTERFACE_LANG_URL
+    if tlg_id:
+        req_url += f"?tlg_id={tlg_id}"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=req_url) as response:
+            if response.status == 200:
+                logger.success(f'Успешный запрос для получения языков интерфейса.')
+                return await response.json()
+            else:
+                logger.warning(f'Неудачный запрос для получения языков интерфейса. | {response.text}')
+                return False
+
+
+async def set_interface_language(tlg_id, language_code):
+    """
+    Установить язык интерфейса пользователя.
+    """
+    req_data = {
+        "token": TOKEN,
+        "tlg_id": tlg_id,
+        "language_code": language_code,
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=INTERFACE_LANG_URL, json=req_data) as response:
+            if response.status == 200:
+                logger.success(f'Успешный запрос для установки языка интерфейса пользователя.')
+                return True
+            else:
+                logger.warning(f'Неудачный запрос для установки языка интерфейса пользователя.')
                 return False

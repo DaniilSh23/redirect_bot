@@ -6,9 +6,11 @@ from filters.payment_filters import filters_choose_pay_method, filter_ask_pay_am
     confirm_payment_filter, cancel_payment_filter, pay_to_card_send_data_filter, ask_pay_to_card_confirmation_filter, \
     pay_to_card_confirmation_filter, decline_card_payment_filter, ask_amount_for_confirm_card_payment_filter, \
     confirm_card_payment_filter
-from keyboards.bot_keyboards import PAY_METHODS_KBRD, CANCEL_AND_CLEAR_STATE_KBRD, BACK_TO_HEAD_PAGE_KBRD, \
-    WAITING_FOR_PAYMENT_KBRD, ADMIN_KBRD, PAY_TO_CARD_KBRD, card_payment_processing_kbrd
-from secondary_functions.req_to_bot_api import req_for_get_payment, get_settings, post_for_change_balance
+from keyboards.bot_keyboards import (ADMIN_KBRD, card_payment_processing_kbrd, back_to_headpage_keyboard,
+                                     waiting_for_payment_keyboard, pay_methods_keyboard,
+                                     cancel_and_clear_state_keyboard, pay_to_card_keyboard)
+from secondary_functions.req_to_bot_api import req_for_get_payment, get_settings, post_for_change_balance, \
+    get_interface_language
 from settings.config import PAYMENTS_OBJ_DCT, STATES_STORAGE_DCT, TEMP_STORAGE_DCT, MY_LOGGER
 
 
@@ -17,13 +19,20 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
     """
     Хэндлер для выбора способа оплаты.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     # Проверяем наличие в БД активного счёта
     payment_from_db = await req_for_get_payment(tlg_id=update.from_user.id)
     if not payment_from_db:  # Обработка на случай неудачного запроса
         await update.edit_message_text(
             text=f'🚧<b>Не удалось получить данные об активном платеже.</b>\n\n'
                  f'Будем благодарны, если сообщите нам об этой проблеме. Так мы сможем быстрее всё починить',
-            reply_markup=BACK_TO_HEAD_PAGE_KBRD
+            reply_markup=await back_to_headpage_keyboard(language_code)
         )
         return
 
@@ -44,7 +53,7 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
             text=f'🌐<b>Ваша ссылка для оплаты:</b> {payment_obj.bill_url}\n\n'
                  f'☝️<b>Будьте внимательны</b> - когда в Crystal Pay будет "✅<u>Подтверждено</u>" - нужно нажать на '
                  f'кнопку "✅<u>Подтвердить оплату</u>" - <b><u>это будет основанием для зачисления средств.</u></b>',
-            reply_markup=WAITING_FOR_PAYMENT_KBRD
+            reply_markup=await waiting_for_payment_keyboard(language_code)
         )
 
     else:  # Если активного счёта нет, то ведём на 1-й шаг оплаты
@@ -52,7 +61,7 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
         await update.edit_message_text(
             text=f'🌕 <b>Перевод на карту:</b>\n- Перевод на карту (РУБ.) с предоставлением скриншота\n\n'
                  f'❗️<b>Платеж зачисляется в ручном режиме Администрацией</b>\n‼️<b>Оплата в любом размере в РУБ.</b>',
-            reply_markup=PAY_METHODS_KBRD
+            reply_markup=await pay_methods_keyboard(language_code)
         )
 
 
@@ -64,12 +73,19 @@ async def ask_pay_amount_handler(client, update: CallbackQuery):
     """
     Хэндлер для запроса суммы пополнения.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     # Даём ответ
     await update.answer(f'Введите сумму пополнения')
     await update.edit_message_text(
         text=f'👇<b>Пришлите мне сумму пополнения баланса</b>\n\n'
              f'<i>Это должно быть целое число (рубли)</i>',
-        reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+        reply_markup=await cancel_and_clear_state_keyboard(language_code)
     )
 
     # Создаём объект класса UserPayments и сохраняем его в словарь
@@ -86,12 +102,19 @@ async def write_pay_amount_handler(client, update: Message):
     """
     Хэндлер для получения сообщения с суммой оплаты
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.reply_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                            " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     # Проверка неверного ввода суммы
     if not update.text.isdigit():
         await update.reply_text(
             text=f'⚠️<b>Неверное значение суммы пополнения:</b> <code>{update.text}</code>\n\n'
                  f'🔢Пожалуйста, введите целое число.\n\nНапример: <code>150</code> 👈 пополнение на 150 рублей.',
-            reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+            reply_markup=await cancel_and_clear_state_keyboard(language_code)
         )
 
     # Очищаем стэйт юзера
@@ -114,7 +137,7 @@ async def write_pay_amount_handler(client, update: Message):
         await update.reply_text(
             text=f'🚧<b>Не удалось создать запись о платеже.</b>\n\n'
                  f'Будем благодарны, если сообщите нам об этой проблеме. Так мы сможем быстрее всё починить',
-            reply_markup=BACK_TO_HEAD_PAGE_KBRD
+            reply_markup=await back_to_headpage_keyboard(language_code)
         )
         return
 
@@ -123,7 +146,7 @@ async def write_pay_amount_handler(client, update: Message):
         text=f'🌐<b>Ваша ссылка для оплаты:</b> {bill_url}\n\n'
              f'☝️<b>Будьте внимательны</b> - когда в Crystal Pay будет "✅<u>Подтверждено</u>" - нужно нажать на '
              f'кнопку "✅<u>Подтвердить оплату</u>" - <b><u>это будет основанием для зачисления средств.</u></b>',
-        reply_markup=WAITING_FOR_PAYMENT_KBRD
+        reply_markup=await waiting_for_payment_keyboard(language_code)
     )
 
 
@@ -132,6 +155,12 @@ async def confirm_payment_handler(client, update: CallbackQuery):
     """
     Хэндлер для подтверждения оплаты.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
 
     # Если в боте не хранится ссылка на объект класса UserPayment, то создаём её на основе данных из БД
     if not PAYMENTS_OBJ_DCT.get(update.from_user.id):
@@ -140,7 +169,7 @@ async def confirm_payment_handler(client, update: CallbackQuery):
             await update.edit_message_text(
                 text=f'🚧<b>Не удалось получить данные об активном платеже.</b>\n\n'
                      f'Будем благодарны, если сообщите нам об этой проблеме. Так мы сможем быстрее всё починить',
-                reply_markup=BACK_TO_HEAD_PAGE_KBRD
+                reply_markup=await back_to_headpage_keyboard(language_code)
             )
             return
 
@@ -165,7 +194,7 @@ async def confirm_payment_handler(client, update: CallbackQuery):
 
     await update.edit_message_text(
         text=f'🧾Статус платежа: {check_result}',
-        reply_markup=BACK_TO_HEAD_PAGE_KBRD
+        reply_markup=await back_to_headpage_keyboard(language_code)
     )
 
     if user_payment_obj.bill_status:
@@ -202,19 +231,26 @@ async def cancel_payment_handler(client, update: CallbackQuery):
     """
     Хэндлер для отмены платежа. Архивируем платёж в БД.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     user_payment_obj = PAYMENTS_OBJ_DCT[update.from_user.id]
     delete_rslt = await req_for_get_payment(payment_for_dlt_id=user_payment_obj.bill_id)
     if not delete_rslt:  # Если не удалось удалить
         await update.edit_message_text(
             text=f'🚧<b>Не удалось отменить платёж.</b>\n\n'
                  f'Будем благодарны, если сообщите нам об этой проблеме. Так мы сможем быстрее всё починить',
-            reply_markup=BACK_TO_HEAD_PAGE_KBRD
+            reply_markup=await back_to_headpage_keyboard(language_code)
         )
         return
 
     await update.edit_message_text(
         text=f'🗑Платёж удалён.',
-        reply_markup=BACK_TO_HEAD_PAGE_KBRD
+        reply_markup=await back_to_headpage_keyboard(language_code)
     )
 
 
@@ -226,6 +262,13 @@ async def pay_to_card_send_data_handler(client, update: CallbackQuery):
     """
     Платёж переводом на карту, отправляем данные для перевода
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     await update.edit_message_text(
         text=f'❓<b>Как оплатить:</b>\n\n'
              f'1️⃣ 💸<b>Переведите сумму, необходимую для пополнения баланса на карту:</b>\n'
@@ -237,7 +280,7 @@ async def pay_to_card_send_data_handler(client, update: CallbackQuery):
              f'☝️<b>Будьте внимательны</b>\n🧾На чеке должна быть видна информация: '
              f'<b>отправитель, получатель, сумма.</b>\n\n'
              f'🔎После обработки Вашего платежа, указанная сумма поступит на баланс.',
-        reply_markup=PAY_TO_CARD_KBRD
+        reply_markup=await pay_to_card_keyboard(language_code)
     )
 
 
@@ -246,10 +289,17 @@ async def ask_pay_to_card_confirmation_handler(client, update: CallbackQuery):
     """
     Хэндлер для запроса подтверждения платежа переводом на карту.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     await update.edit_message_text(
         text=f'🧾Пожалуйста, <b>пришлите</b> мне <b>чек в качестве подтверждения платежа.</b>\n\n'
              f'<b>На чеке должно быть отчётливо видно:</b>\n🔹отправителя;\n🔹получателя;\n🔹сумму.',
-        reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+        reply_markup=await cancel_and_clear_state_keyboard(language_code)
     )
     STATES_STORAGE_DCT[update.from_user.id] = 'pay_to_card_confirmation'
 
@@ -259,19 +309,26 @@ async def pay_to_card_confirmation_handler(client, update: Message):
     """
     Хэндлер для получения от юзера чека, в качестве подтверждения платежа.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.reply_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                            " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     # Просим повторить, если не обнаружено фотки в сообщении
     if not update.photo:
         await update.reply_text(
             text=f'🖼🤷‍♂️<b>Не обнаружено фото в Вашем сообщении.</b>\n\n'
                  f'✉️Пожалуйста, <b>отправьте мне чек(скрин, фото)</b> для подтверждения оплаты.',
-            reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+            reply_markup=await cancel_and_clear_state_keyboard(language_code)
         )
         return
 
     # Ответ юзеру
     await update.reply_text(
         text=f'👌Ваши средства будут зачислены сразу, после обработки платежа.',
-        reply_markup=BACK_TO_HEAD_PAGE_KBRD
+        reply_markup=await back_to_headpage_keyboard(language_code)
     )
     STATES_STORAGE_DCT.pop(update.from_user.id)  # Очищаем стэйт
 
@@ -311,13 +368,20 @@ async def ask_amount_for_confirm_card_payment_handler(client, update: CallbackQu
     """
     Хэндлер для запроса суммы платежа по карте.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     await client.send_message(
         chat_id=update.from_user.id,
         text=f'💵<b>Введите сумму, которую оплатил пользователь</b>\n\n'
              f'☝️Это должно быть <b>целое число</b>\n\n'
              f'<i>Если кто-то умудрился оплатить с копейками, то, как выдающейся личности👩‍🎓,'
              f' можно округлить его сумму в бОльшую сторону до очередного рубля</i>',
-        reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+        reply_markup=await cancel_and_clear_state_keyboard(language_code)
     )
     STATES_STORAGE_DCT[update.from_user.id] = 'ask_card_replenish_amount'  # Устанавливаем стэйт для админа
     # Записываем tlg_id плательщика во временное хранилище
@@ -329,13 +393,20 @@ async def confirm_card_payment_handler(client, update: Message):
     """
     Хэндлер подтверждения платежа и зачисления средств на баланс.
     """
+    # Получаем язык интерфейса пользователя
+    interface_lang_response = await get_interface_language(tlg_id=update.from_user.id)
+    if not interface_lang_response:
+        return await update.edit_message_text(text="🛠 Sorry...The bot has problems with translation. Please try"
+                                                   " again later, we are already solving this problem")
+    language_code = interface_lang_response["language_code"]
+
     # Проверка, если введено не целое число
     if not update.text.isdigit():
         await update.reply_text(
             text=f'❗️<b>Введено не целое число.</b>\n❌<code>{update.text}</code> - не подходит\n\n'
                  f'💵<b>Введите сумму, которую оплатил пользователь</b>\n'
                  f'☝️Это должно быть <b>целое число</b>\n',
-            reply_markup=CANCEL_AND_CLEAR_STATE_KBRD
+            reply_markup=await cancel_and_clear_state_keyboard(language_code)
         )
         return
 
