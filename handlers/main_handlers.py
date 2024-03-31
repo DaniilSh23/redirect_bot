@@ -8,7 +8,7 @@ from pyrogram.types import CallbackQuery, Message
 from filters.main_filters import filter_throttling_middleware, filter_for_cancel_and_clear_state, \
     filter_back_to_head_page
 from keyboards.bot_keyboards import ADMIN_KBRD, form_head_page_keyboard
-from resources.messages import MESSAGES
+from resources.messages import MESSAGES, ALERT_MESSAGES
 from secondary_functions.req_to_bot_api import post_user_data, get_settings, get_interface_language
 from settings.config import BLACK_LIST, STATES_STORAGE_DCT
 
@@ -127,11 +127,11 @@ async def cancel_and_clear_state_handler(client, update: CallbackQuery):
 
     # TODO: нужно допилить перевод текстов
     await update.answer(
-        text=f'Нажата кнопка ❌Отменить.\nВозврат к главному меню.',
+        text=ALERT_MESSAGES[f"cancel_and_return_{language_code}"],
         show_alert=True
     )
     await update.edit_message_text(
-        text='<b>Главное меню</b>',
+        text=MESSAGES[f"main_menu_{language_code}"],
         reply_markup=await form_head_page_keyboard(language_code=language_code),
     )
 
@@ -153,7 +153,7 @@ async def back_to_head_page_handler(client, update: CallbackQuery):
     language_code = interface_lang_response["language_code"]
 
     await update.answer(
-        text=f'Возврат к главному меню.',
+        text=ALERT_MESSAGES[f"return_to_main_{language_code}"],
         show_alert=True
     )
     await update.edit_message_text(

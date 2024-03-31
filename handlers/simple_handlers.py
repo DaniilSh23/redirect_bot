@@ -123,7 +123,7 @@ async def set_new_language_handler(_, update: CallbackQuery):
     set_new_lang_resp = await set_interface_language(tlg_id=update.from_user.id, language_code=new_lang_code)
     if not set_new_lang_resp:
         return await update.edit_message_text(
-            text=ERROR_MESSAGES["base_error"],
+            text=ERROR_MESSAGES[f"base_error_{new_lang_code}"],
             reply_markup=await languages_keyboard(old_language_code)
         )
 
