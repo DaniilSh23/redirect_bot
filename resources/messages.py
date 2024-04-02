@@ -126,6 +126,48 @@ MESSAGES = {
     "less_one_redirect_eng": '❗️<b>Redirects cannot be less than 1</b>\n',
     "top_up_balance_for_redirect_rus": "❗️<b>Недостаточно средств, пополните баланс на {price_difference} руб.</b>\n\n",
     "top_up_balance_for_redirect_eng": "❗️<b>Insufficient funds, top up your balance by {price_difference} RUB</b>\n\n",
+    "request_stats_rus": "📡Запрашиваю данные о статистике...",
+    "request_stats_eng": "📡 Requesting stats...",
+    "data_not_received_or_zero_rus": "<i>Данные не получены или 0</i>",
+    "data_not_received_or_zero_eng": "<i>Data not received or 0</i>",
+    "statistic_info_today_rus": "📆Период статистики: <b>сегодня</b>\n\n🔗<b>ID ссылки:</b> {company_id}\n"
+                                "🚶<b>Всего переходов:</b> {all_clicks}\n🚶‍♂️<b>Уникальных переходов:</b> "
+                                "{unique_clicks}\n🤖 <b>Боты:</b> {bots}\n",
+    "statistic_info_today_eng": "📆Statistics period: <b>today</b>\n\n🔗<b>Reference ID:</b> {company_id}\n"
+                                "🚶<b>Total hits:</b> {all_clicks}\n🚶‍♂️<b>Уникальных hits:</b> {unique_clicks}\n"
+                                "🤖 <b>Bots:</b> {bots}\n",
+    "statistic_info_rus": "📆Период статистики: <b>{stat_periods}</b>\n\n🔗<b>ID ссылки:</b> {company_id}\n"
+                                "🚶<b>Всего переходов:</b> {all_clicks}\n🚶‍♂️<b>Уникальных переходов:</b> "
+                                "{unique_clicks}\n🤖 <b>Боты:</b> {bots}\n",
+    "statistic_info_eng": "📆Statistics period: <b>{stat_periods}</b>\n\n🔗<b>Reference ID:</b> {company_id}\n"
+                                "🚶<b>Total hits:</b> {all_clicks}\n🚶‍♂️<b>Уникальных hits:</b> {unique_clicks}\n"
+                                "🤖 <b>Bots:</b> {bots}\n",
+}
+
+STAT_PERIODS_RUS = {
+    "today": "сегодня",
+    "yesterday": "вчера",
+    "last_monday": "текущая неделя",
+    "7_days_ago": "последние 7 дней",
+    "first_day_of_this_month": "текущий месяц",
+    "previous_month": "предыдущий месяц",
+    "1_month_ago": "последние 30 дней",
+    "first_day_of_this_year": "текущий год",
+    "1_year_ago": "за год",
+    "all_time": "за всё время",
+}
+
+STAT_PERIODS_ENG = {
+    "today": "today",
+    "yesterday": "yesterday",
+    "last_monday": "Current week",
+    "7_days_ago": "7 days ago",
+    "first_day_of_this_month": "Current month",
+    "previous_month": "Previous month",
+    "1_month_ago": "Last 30 days",
+    "first_day_of_this_year": "Current year",
+    "1_year_ago": "For the year",
+    "all_time": "All time",
 }
 
 ERROR_MESSAGES = {

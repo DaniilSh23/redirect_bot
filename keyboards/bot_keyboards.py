@@ -1,6 +1,7 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from keyboards.bot_buttons import BUTTONS_DCT
+from resources.messages import STAT_PERIODS_RUS, STAT_PERIODS_ENG
 from secondary_functions.req_to_bot_api import get_interface_language
 from secondary_functions.utils import make_feedback_link
 
@@ -166,54 +167,62 @@ async def statistic_keyboard(company_id, language_code):
     Клавиатура в разделе статистики.
     Записываем в колбэк кнопок по выбору периода company_id
     """
+    match language_code:
+        case "rus":
+            stat_periods = STAT_PERIODS_RUS
+        case "eng":
+            stat_periods = STAT_PERIODS_ENG
+        case _:
+            stat_periods = STAT_PERIODS_RUS
+
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                text='🔹Сегодня',
+                text=f'🔹{stat_periods["today"]}',
                 callback_data=f'stat_period {company_id} today',
             ),
             InlineKeyboardButton(
-                text='🔹Вчера',
+                text=f'🔹{stat_periods["yesterday"]}',
                 callback_data=f'stat_period {company_id} yesterday',
             ),
         ],
         [
             InlineKeyboardButton(
-                text='🔹Тек. неделя',
+                text=f'🔹{stat_periods["last_monday"]}',
                 callback_data=f'stat_period {company_id} last_monday',
             ),
             InlineKeyboardButton(
-                text='🔹Последн. 7 дней',
+                text=f'🔹{stat_periods["7_days_ago"]}',
                 callback_data=f'stat_period {company_id} 7_days_ago',
             ),
         ],
         [
             InlineKeyboardButton(
-                text='🔹Тек. месяц',
+                text=f'🔹{stat_periods["first_day_of_this_month"]}',
                 callback_data=f'stat_period {company_id} first_day_of_this_month',
             ),
             InlineKeyboardButton(
-                text='🔹Пред. месяц',
+                text=f'🔹{stat_periods["previous_month"]}',
                 callback_data=f'stat_period {company_id} previous_month',
             ),
         ],
         [
             InlineKeyboardButton(
-                text='🔹Последн. 30 дней',
+                text=f'🔹{stat_periods["1_month_ago"]}',
                 callback_data=f'stat_period {company_id} 1_month_ago',
             ),
             InlineKeyboardButton(
-                text='🔹Тек. год',
+                text=f'🔹{stat_periods["first_day_of_this_year"]}',
                 callback_data=f'stat_period {company_id} first_day_of_this_year',
             ),
         ],
         [
             InlineKeyboardButton(
-                text='🔹За год',
+                text=f'🔹{stat_periods["1_year_ago"]}',
                 callback_data=f'stat_period {company_id} 1_year_ago',
             ),
             InlineKeyboardButton(
-                text='🔹За всё время',
+                text=f'🔹{stat_periods["all_time"]}',
                 callback_data=f'stat_period {company_id} all_time',
             ),
         ],
