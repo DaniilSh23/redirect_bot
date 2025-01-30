@@ -1,5 +1,6 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
+from settings.config import BASE_HOST_URL
 from keyboards.bot_buttons import BUTTONS_DCT
 from resources.messages import STAT_PERIODS_RUS, STAT_PERIODS_ENG
 from secondary_functions.req_to_bot_api import get_interface_language
@@ -305,7 +306,7 @@ async def card_payment_processing_kbrd(tlg_id):
     ])
 
 
-async def form_head_page_keyboard(language_code):
+async def form_head_page_keyboard(language_code, tlg_id):
     """
     Формируем клавиатуру для главной странице.
     (Эта функция нужна, чтобы подтягивать из БД ссылку на канал с отзывами)
@@ -315,6 +316,12 @@ async def form_head_page_keyboard(language_code):
     feed_back_button.url = await make_feedback_link()
 
     return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton(
+        text='🌐 Мои домены',
+        web_app=WebAppInfo(url=f"{BASE_HOST_URL}user_domain/?tlg_id={tlg_id}")
+    )
+        ],
         [
             BUTTONS_DCT[f'CREATE_LINK_{language_code}'],
             BUTTONS_DCT[f'GET_STATISTIC_{language_code}'],

@@ -103,7 +103,7 @@ async def start_handler(client, update: Message):
         tariff_response=tariff_response[0].get("value"))
     await update.reply_text(
         text=msg_text,
-        reply_markup=await form_head_page_keyboard(language_code=language_code),
+        reply_markup=await form_head_page_keyboard(language_code=language_code, tlg_id=update.from_user.id),
     )
 
 
@@ -132,7 +132,7 @@ async def cancel_and_clear_state_handler(client, update: CallbackQuery):
     )
     await update.edit_message_text(
         text=MESSAGES[f"main_menu_{language_code}"],
-        reply_markup=await form_head_page_keyboard(language_code=language_code),
+        reply_markup=await form_head_page_keyboard(language_code=language_code, tlg_id=update.from_user.id),
     )
 
 
@@ -158,7 +158,7 @@ async def back_to_head_page_handler(client, update: CallbackQuery):
     )
     await update.edit_message_text(
         text='<b>Главное меню</b>',
-        reply_markup=await form_head_page_keyboard(language_code=language_code),
+        reply_markup=await form_head_page_keyboard(language_code=language_code, tlg_id=update.from_user.id),
     )
 
 
@@ -180,5 +180,5 @@ async def send_menu(client, update: Message):
 
     await update.reply_text(
         text='<b>Главное меню</b>',
-        reply_markup=await form_head_page_keyboard(language_code=language_code),
+        reply_markup=await form_head_page_keyboard(language_code=language_code, tlg_id=update.from_user.id),
     )

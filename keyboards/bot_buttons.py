@@ -1,4 +1,4 @@
-from pyrogram.types import InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton, WebAppInfo
 
 from settings.config import BASE_HOST_URL, FEEDBACK_CHAT_URL
 
