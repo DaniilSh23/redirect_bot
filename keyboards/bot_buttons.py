@@ -260,7 +260,7 @@ async def my_domain_button(lang_code, tlg_id):
         "rus": "🌐 Мои домены",
         "eng": "🌐 My domains",
     }
-    InlineKeyboardButton(
+    return InlineKeyboardButton(
                     text=button_text.get(lang_code, button_text["eng"]),
                     web_app=WebAppInfo(
                         url=f"{USER_DOMAIN_URL}?tlg_id={tlg_id}"

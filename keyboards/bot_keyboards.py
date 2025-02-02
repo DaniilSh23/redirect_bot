@@ -6,14 +6,14 @@ from resources.messages import STAT_PERIODS_RUS, STAT_PERIODS_ENG
 from secondary_functions.req_to_bot_api import get_interface_language
 from secondary_functions.utils import make_feedback_link
 
-ADMIN_KBRD = InlineKeyboardMarkup(
+ADMIN_KBRD = InlineKeyboardMarkup([
     [
-        [BUTTONS_DCT["ADMIN_PANEL"]],
+        BUTTONS_DCT["ADMIN_PANEL"],
     ],
     [
-        [BUTTONS_DCT["TRANSFER_USERS"]],
+        BUTTONS_DCT["TRANSFER_USERS"],
     ],
-)
+])
 
 
 # HEAD_PAGE_KBRD = InlineKeyboardMarkup([
@@ -344,7 +344,9 @@ async def form_head_page_keyboard(language_code, tlg_id):
 
     return InlineKeyboardMarkup(
         [
-            [await my_domain_button(lang_code=language_code, tlg_id=tlg_id)],
+            [
+                await my_domain_button(lang_code=language_code, tlg_id=tlg_id)
+            ],
             [
                 BUTTONS_DCT[f"CREATE_LINK_{language_code}"],
                 BUTTONS_DCT[f"GET_STATISTIC_{language_code}"],
