@@ -1,6 +1,6 @@
 from pyrogram.types import InlineKeyboardButton, WebAppInfo
 
-from settings.config import BASE_HOST_URL, FEEDBACK_CHAT_URL
+from settings.config import BASE_HOST_URL, FEEDBACK_CHAT_URL, USER_DOMAIN_URL
 
 BUTTONS_DCT = {
     'ADMIN_PANEL': InlineKeyboardButton(
@@ -177,6 +177,15 @@ BUTTONS_DCT = {
         text=f'🔹OUR DOMAINS ⚜️',
         callback_data='short_link custom_domain'
     ),
+        'user_domain_rus': InlineKeyboardButton(
+        text=f'🔹Мои домены',
+        callback_data='short_link users_domain'
+    ),
+    'user_domain_eng': InlineKeyboardButton(
+        text=f'🔹My domains',
+        callback_data='short_link users_domain'
+    ),
+
 
     # Кнопка для раздела статистики
     'CHECK_MORE_rus': InlineKeyboardButton(
@@ -238,3 +247,19 @@ BUTTONS_DCT = {
         callback_data='change_lang',
     )
 }
+
+async def my_domain_button(lang_code, tlg_id):
+    """
+    Функция для динамического создания кнопки Мои домены.
+    """
+    button_text = {
+        "rus": "🌐 Мои домены",
+        "eng": "🌐 My domains",
+    }
+    InlineKeyboardButton(
+                    text=button_text.get(lang_code, button_text["eng"]),
+                    web_app=WebAppInfo(
+                        url=f"{USER_DOMAIN_URL}?tlg_id={tlg_id}"
+                    ),
+                )
+    
