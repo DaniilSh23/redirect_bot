@@ -9,7 +9,10 @@ from secondary_functions.utils import make_feedback_link
 ADMIN_KBRD = InlineKeyboardMarkup(
     [
         [BUTTONS_DCT["ADMIN_PANEL"]],
-    ]
+    ],
+    [
+        [BUTTONS_DCT["TRANSFER_USERS"]],
+    ],
 )
 
 

@@ -7,6 +7,10 @@ BUTTONS_DCT = {
         text=f'⌨️Админ-панель',
         url=f'{BASE_HOST_URL}admin/'
     ),
+    "TRANSFER_USERS": InlineKeyboardButton(
+        text=f'🔄 Перенос аккаунтов',
+        url=f'{BASE_HOST_URL}transfer_users/'
+    ),
 
     # Главное меню
     'CREATE_LINK_rus': InlineKeyboardButton(
