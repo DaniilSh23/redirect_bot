@@ -57,18 +57,19 @@ async def choose_short_link_keyboard(language_code):
     """
     return InlineKeyboardMarkup(
         [
-            [
-                BUTTONS_DCT[f"user_domain_{language_code}"],
-            ],
             # [
-            #     BUTTONS_DCT[f"custom_domain_{language_code}"],
+            #     BUTTONS_DCT[f"user_domain_{language_code}"],
             # ],
+            [
+                BUTTONS_DCT[f"custom_domain_{language_code}"],
+            ],
             [
                 BUTTONS_DCT["clck.ru"],
                 BUTTONS_DCT["haa.su"],
             ],
             [
                 BUTTONS_DCT["kurl.ru"],
+                BUTTONS_DCT["cleanuri.com"],
                 # BUTTONS_DCT['rebrandly.com'],
             ],
             # [

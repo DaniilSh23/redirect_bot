@@ -1,15 +1,19 @@
 from pyrogram.types import InlineKeyboardButton, WebAppInfo
 
-from settings.config import BASE_HOST_URL, FEEDBACK_CHAT_URL, USER_DOMAIN_URL
+from settings.config import BASE_HOST_URL, FEEDBACK_CHAT_URL, USER_DOMAIN_URL, BASE_HOST_DOMAIN
 
 BUTTONS_DCT = {
     'ADMIN_PANEL': InlineKeyboardButton(
         text=f'⌨️Админ-панель',
-        url=f'{BASE_HOST_URL}admin/'
+        web_app=WebAppInfo(
+            url=f'{BASE_HOST_DOMAIN}admin/'
+        ),
     ),
     "TRANSFER_USERS": InlineKeyboardButton(
         text=f'🔄 Перенос аккаунтов',
-        url=f'{BASE_HOST_URL}transfer_users/'
+        web_app=WebAppInfo(
+            url=f'{BASE_HOST_DOMAIN}transfer_users/'
+        ),
     ),
 
     # Главное меню
@@ -172,6 +176,10 @@ BUTTONS_DCT = {
     'rebrandly.com': InlineKeyboardButton(
         text=f'🔹rebrandly.com',
         callback_data='short_link rebrandly.com'
+    ),
+    "cleanuri.com": InlineKeyboardButton(
+        text=f'🔹cleanuri.com',
+        callback_data='short_link cleanuri.com'
     ),
     'custom_domain_rus': InlineKeyboardButton(
         text=f'🔹Наши домены ⚜️',
