@@ -9,6 +9,7 @@ from filters.payment_filters import filters_choose_pay_method, filter_ask_pay_am
 from keyboards.bot_keyboards import (ADMIN_KBRD, card_payment_processing_kbrd, back_to_headpage_keyboard,
                                      waiting_for_payment_keyboard, pay_methods_keyboard,
                                      cancel_and_clear_state_keyboard, pay_to_card_keyboard)
+from resources.messages import MESSAGES
 from secondary_functions.req_to_bot_api import req_for_get_payment, get_settings, post_for_change_balance, \
     get_interface_language
 from settings.config import PAYMENTS_OBJ_DCT, STATES_STORAGE_DCT, TEMP_STORAGE_DCT, MY_LOGGER
@@ -269,17 +270,13 @@ async def pay_to_card_send_data_handler(client, update: CallbackQuery):
                                                    " again later, we are already solving this problem")
     language_code = interface_lang_response["language_code"]
 
+    # Получаем текст для перевода
+    pay_method_text = update.data.split()[1]
+    settings_lst = await get_settings(key=pay_method_text)    # [{"key": "value"}, ...]
+    msg_text = settings_lst[0].get("value")
+
     await update.edit_message_text(
-        text=f'❓<b>Как оплатить:</b>\n\n'
-             f'1️⃣ 💸<b>Переведите сумму, необходимую для пополнения баланса на карту:</b>\n'
-             f'🔹Номер карты: <code>5559572078533793</code>\n'
-             f'🔹Банк получателя: Альфа Банк\n'
-             f'2️⃣ Нажмите кнопку <u>"✅Я перевёл"</u>\n'
-             f'3️⃣ Бот запросит чек. Пришлите ему фотку или скрин.\n'
-             f'4️⃣ Ожидайте обработки Вашего платежа 🧘‍♀️\n\n'
-             f'☝️<b>Будьте внимательны</b>\n🧾На чеке должна быть видна информация: '
-             f'<b>отправитель, получатель, сумма.</b>\n\n'
-             f'🔎После обработки Вашего платежа, указанная сумма поступит на баланс.',
+        text=msg_text,
         reply_markup=await pay_to_card_keyboard(language_code)
     )
 
@@ -297,8 +294,7 @@ async def ask_pay_to_card_confirmation_handler(client, update: CallbackQuery):
     language_code = interface_lang_response["language_code"]
 
     await update.edit_message_text(
-        text=f'🧾Пожалуйста, <b>пришлите</b> мне <b>чек в качестве подтверждения платежа.</b>\n\n'
-             f'<b>На чеке должно быть отчётливо видно:</b>\n🔹отправителя;\n🔹получателя;\n🔹сумму.',
+        text=MESSAGES[f"send_me_check_message_{language_code}"],
         reply_markup=await cancel_and_clear_state_keyboard(language_code)
     )
     STATES_STORAGE_DCT[update.from_user.id] = 'pay_to_card_confirmation'

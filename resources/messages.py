@@ -146,6 +146,9 @@ MESSAGES = {
     "statistic_info_eng": "📆Statistics period: <b>{stat_periods}</b>\n\n🔗<b>Reference ID:</b> {company_id}\n"
     "🚶<b>Total hits:</b> {all_clicks}\n🚶‍♂️<b>Уникальных hits:</b> {unique_clicks}\n"
     "🤖 <b>Bots:</b> {bots}\n",
+
+    "send_me_check_message_eng": "🧾Please send me a check as proof of payment.\n\nThe check must clearly show:\n🔹 sender;\n🔹 Receiver;\n🔹 amount.",
+    "send_me_check_message_rus": '🧾Пожалуйста, <b>пришлите</b> мне <b>чек в качестве подтверждения платежа.</b>\n\n<b>На чеке должно быть отчётливо видно:</b>\n🔹отправителя;\n🔹получателя;\n🔹сумму.'
 }
 
 STAT_PERIODS_RUS = {

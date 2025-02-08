@@ -1,6 +1,6 @@
 from pyrogram import filters
 
-from settings.config import STATES_STORAGE_DCT
+from settings.config import MY_LOGGER, STATES_STORAGE_DCT
 
 
 async def func_choose_pay_method(_, __, query):
@@ -43,7 +43,7 @@ async def pay_to_card_send_data_func(_, __, query):
     """
     Функция фильтра для хэндлера pay_to_card_send_data_handler.
     """
-    return query.data == 'pay_to_card'
+    return query.data.startswith("pay_to_card")
 
 
 async def ask_pay_to_card_confirmation_func(_, __, query):

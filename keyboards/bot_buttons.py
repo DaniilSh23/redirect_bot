@@ -218,14 +218,32 @@ BUTTONS_DCT = {
         text='🌑 Crystal Pay',
         callback_data='pay_method crystal',
     ),
+
     'TO_CARD_PAY_METHD_rus': InlineKeyboardButton(
         text='🌕 Перевод на карту',
-        callback_data='pay_to_card',
+        callback_data='pay_to_card to_card_pay_text_rus',
     ),
     'TO_CARD_PAY_METHD_eng': InlineKeyboardButton(
         text='🌕 Transfer to card',
-        callback_data='pay_to_card',
+        callback_data='pay_to_card to_card_pay_text_eng',
     ),
+    'TO_TRC20_PAY_METHD_rus': InlineKeyboardButton(
+        text='🟢Перевод на USDT TRC20',
+        callback_data='pay_to_card to_trc20_pay_text_rus',
+    ),
+    'TO_TRC20_PAY_METHD_eng': InlineKeyboardButton(
+        text='🟢Transfer to USDT TRC20',
+        callback_data='pay_to_card to_trc20_pay_text_eng',
+    ),
+    'TO_BTC_PAY_METHD_rus': InlineKeyboardButton(
+        text='🟠Перевод на BTC',
+        callback_data='pay_to_card to_btc_pay_text_rus',
+    ),
+    'TO_BTC_PAY_METHD_eng': InlineKeyboardButton(
+        text='🟠Transfer to BTC',
+        callback_data='pay_to_card to_btc_pay_text_eng',
+    ),
+
     'CONFIRM_PAYMENT_rus': InlineKeyboardButton(
         text='✅Подтвердить оплату',
         callback_data='confirm_payment',

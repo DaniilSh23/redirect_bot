@@ -57,9 +57,9 @@ async def choose_short_link_keyboard(language_code):
     """
     return InlineKeyboardMarkup(
         [
-            # [
-            #     BUTTONS_DCT[f"user_domain_{language_code}"],
-            # ],
+            [
+                BUTTONS_DCT[f"user_domain_{language_code}"],
+            ],
             [
                 BUTTONS_DCT[f"custom_domain_{language_code}"],
             ],
@@ -143,6 +143,12 @@ async def pay_methods_keyboard(language_code):
             # ],
             [
                 BUTTONS_DCT[f"TO_CARD_PAY_METHD_{language_code}"],
+            ],
+            [
+                BUTTONS_DCT[f"TO_TRC20_PAY_METHD_{language_code}"],
+            ],
+            [
+                BUTTONS_DCT[f"TO_BTC_PAY_METHD_{language_code}"],
             ],
             [
                 BUTTONS_DCT[f"BACK_TO_HEAD_PAGE_{language_code}"],
