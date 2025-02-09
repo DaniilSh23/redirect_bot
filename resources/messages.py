@@ -147,8 +147,11 @@ MESSAGES = {
     "🚶<b>Total hits:</b> {all_clicks}\n🚶‍♂️<b>Уникальных hits:</b> {unique_clicks}\n"
     "🤖 <b>Bots:</b> {bots}\n",
 
-    "send_me_check_message_eng": "🧾Please send me a check as proof of payment.\n\nThe check must clearly show:\n🔹 sender;\n🔹 Receiver;\n🔹 amount.",
-    "send_me_check_message_rus": '🧾Пожалуйста, <b>пришлите</b> мне <b>чек в качестве подтверждения платежа.</b>\n\n<b>На чеке должно быть отчётливо видно:</b>\n🔹отправителя;\n🔹получателя;\n🔹сумму.'
+    "send_me_check_message_eng": "🧾 <b>Please send me a check as proof of payment if the payment was card-to-card.</b>\n\nThe check must clearly show:\n🔹 sender;\n🔹 Receiver;\n🔹 amount.\n\n<i>📝 If the payment was for USDT TRC20 / BTC, please send the hash of the transaction.</i>",
+    "send_me_check_message_rus": '🧾 <b>Пожалуйста, пришлите мне чек в качестве подтверждения платежа, если оплата была с карты на карту.</b>\n\n<b>На чеке должно быть отчётливо видно:</b>\n🔹отправителя;\n🔹получателя;\n🔹сумму.\n\n<i>📝 Если оплата была на USDT TRC20 / BTC, пришлите пожалуйста хэш-транзакции.</i>',
+
+    "pay_methods_text_eng": "<b>Transfer to 🌕 CARD| 🟢 USDT TRC20 | 🟠 BTC</b>\n- Transfers with screenshots\n\n❗️Payments are credited manually by the administration\n‼️Payment in any amount",
+    "pay_methods_text_rus": "<b>Перевод на 🌕 КАРТУ| 🟢 USDT TRC20 | 🟠 BTC</b>\n- Переводы с предоставлением скриншотов\n\n❗️Платежи зачисляется в ручном режиме Администрацией‼️\nОплата в любом размере",
 }
 
 STAT_PERIODS_RUS = {

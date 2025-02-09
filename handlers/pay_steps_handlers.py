@@ -58,11 +58,11 @@ async def choose_pay_method_handler(client, update: CallbackQuery):
         )
 
     else:  # Если активного счёта нет, то ведём на 1-й шаг оплаты
+        msg_text = MESSAGES.get(f"pay_methods_text_{language_code}")
         await update.answer(f'Выберите способ оплаты')
         await update.edit_message_text(
-            text=f'🌕 <b>Перевод на карту:</b>\n- Перевод на карту (РУБ.) с предоставлением скриншота\n\n'
-                 f'❗️<b>Платеж зачисляется в ручном режиме Администрацией</b>\n‼️<b>Оплата в любом размере в РУБ.</b>',
-            reply_markup=await pay_methods_keyboard(language_code)
+            text=msg_text,
+            reply_markup=await pay_methods_keyboard(language_code),
         )
 
 
@@ -313,13 +313,13 @@ async def pay_to_card_confirmation_handler(client, update: Message):
     language_code = interface_lang_response["language_code"]
 
     # Просим повторить, если не обнаружено фотки в сообщении
-    if not update.photo:
-        await update.reply_text(
-            text=f'🖼🤷‍♂️<b>Не обнаружено фото в Вашем сообщении.</b>\n\n'
-                 f'✉️Пожалуйста, <b>отправьте мне чек(скрин, фото)</b> для подтверждения оплаты.',
-            reply_markup=await cancel_and_clear_state_keyboard(language_code)
-        )
-        return
+    # if not update.photo:
+    #     await update.reply_text(
+    #         text=f'🖼🤷‍♂️<b>Не обнаружено фото в Вашем сообщении.</b>\n\n'
+    #              f'✉️Пожалуйста, <b>отправьте мне чек(скрин, фото)</b> для подтверждения оплаты.',
+    #         reply_markup=await cancel_and_clear_state_keyboard(language_code)
+    #     )
+    #     return
 
     # Ответ юзеру
     await update.reply_text(
