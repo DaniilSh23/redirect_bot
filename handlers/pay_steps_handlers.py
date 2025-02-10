@@ -1,6 +1,8 @@
 from pyrogram import Client
 from pyrogram.types import CallbackQuery, Message
 
+from urllib.parse import urlparse
+
 from bot_objects.payments_objects import UserPayments
 from filters.payment_filters import filters_choose_pay_method, filter_ask_pay_amount, filter_write_pay_amount, \
     confirm_payment_filter, cancel_payment_filter, pay_to_card_send_data_filter, ask_pay_to_card_confirmation_filter, \
@@ -312,14 +314,17 @@ async def pay_to_card_confirmation_handler(client, update: Message):
                                             " again later, we are already solving this problem")
     language_code = interface_lang_response["language_code"]
 
-    # Просим повторить, если не обнаружено фотки в сообщении
-    # if not update.photo:
-    #     await update.reply_text(
-    #         text=f'🖼🤷‍♂️<b>Не обнаружено фото в Вашем сообщении.</b>\n\n'
-    #              f'✉️Пожалуйста, <b>отправьте мне чек(скрин, фото)</b> для подтверждения оплаты.',
-    #         reply_markup=await cancel_and_clear_state_keyboard(language_code)
-    #     )
-    #     return
+    # Проверка на наличие фотки или ссылки в сообщении
+    parsed_url = urlparse(update.text)
+    is_url = all([parsed_url.scheme, parsed_url.netloc])
+    validate_pay_confirmation_msg = [bool(i_data) for i_data in (update.photo, is_url)]
+    if not any(validate_pay_confirmation_msg):  # Если ни одна из проверок не вернула True (т.е. в апдейте нет ни фотки, ни ссылки)
+        await update.reply_text(
+            text=f'🖼 | 🔗 🤷‍♂️<b>Не обнаружено фото или ссылки в Вашем сообщении.</b>\n\n'
+                 f'✉️Пожалуйста, <b>отправьте мне чек(скрин, фото)</b> для подтверждения оплаты при переводе на карту, или ссылку при переводе криптовалюты.',
+            reply_markup=await cancel_and_clear_state_keyboard(language_code)
+        )
+        return
 
     # Ответ юзеру
     await update.reply_text(
