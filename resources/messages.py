@@ -104,16 +104,18 @@ MESSAGES = {
     "💰Balance: <b>{balance} RUB</b>\n"
     "🧾Total cost: <b>{total_price} RUB</b>\n\n"
     "🔀Select <b>how many redirects</b> to make for each link?",
+    
     "choose_shortener_rus": "🔗Пожалуйста, выберите <b>сервис для сокращения ссылок</b>.\n\n"
     "Будьте внимательны! Некоторые сокращалки открывают ссылку спустя n-oe кол-во времени!\n\n"
-    "⚜️ Наши домены - мгновенный переход. Улучшенная фильтрация.\n"
-    "🔹 сlck.ru - мгновенный переход\n"
-    "🔹 kurl.ru - мгновенный переход\n"
-    "🔹 haa.su - переход в теч. 3 сек.",
+    "⚡️ Свои домены - Вы можете внедрять свои домены для сокращателя, мгновенный переход. Улучшенная фильтрация.⚡️\n⚜️ Наши домены - мгновенный переход. Улучшенная фильтрация.\n"
+    "🔹 сlck - мгновенный переход\n"
+    "🔹 kurl - мгновенный переход\n"
+    "🔹 cleanuri - мгновенный переход\n",
     "choose_shortener_eng": "🔗Please choose a <b>service to shorten links.</b>\n\n"
     "🔗 Be careful! Some abbreviations open the link after a while!\n\n"
-    "⚜️ Our domains - instant transfer. Improved filtering.\n🔹 slk.ru - instant transfer\n"
-    "🔹 kurl.ru - instant transfer\n🔹 haa.su - jump within 3 sec.",
+    "⚡️Your domains - You can embed your domains for shortener, instant transfer. Improved filtering.⚡️\n⚜️ Our domains - instant transfer. Improved filtering.\n"
+    "🔹 clck - instant transition\n🔹 kurl - instant transfer\n🔹 cleanuri - instant jump\n",
+
     "wrap_in_redirect_rus": "🆗Окей.\n🎁Начинаю оборачивать Ваши ссылки в редирект.\n"
     "🧘‍♀️Ожидайте, я пришлю Вам файл с результатами📄, когда всё будет готово.",
     "wrap_in_redirect_eng": "🆗Okay.\n🎁 I will start wrapping your links in redirect.\n"

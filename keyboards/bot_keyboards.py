@@ -65,7 +65,7 @@ async def choose_short_link_keyboard(language_code):
             ],
             [
                 BUTTONS_DCT["clck.ru"],
-                BUTTONS_DCT["haa.su"],
+                # BUTTONS_DCT["haa.su"],
             ],
             [
                 BUTTONS_DCT["kurl.ru"],
